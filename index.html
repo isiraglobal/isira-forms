@@ -364,7 +364,7 @@
 const CONFIG = {
   workerUrl: 'https://form-worker.isiraglobal.workers.dev/', // Your Cloudflare Worker URL
   whopLinks: {
-    venue: 'https://whop.com/isira-events/venue-partner-application',
+    venue: 'https://whop.com/checkout/plan_UGERzHXbQYzap',
     vendorEarly :   'https://whop.com/checkout/plan_6rFkbfVEg8FmN',
     vendorStandard:'https://whop.com/checkout/plan_5WVL8YWVilo0N',
     vendorPremium: 'https://whop.com/checkout/plan_GJpm1F4tEuUS8', // Update with your premium plan ID
@@ -440,6 +440,73 @@ function fireConfetti(originX, originY) {
 const fmt = d => { if(!d) return ''; const [y,m,day]=d.split('-'); return `${m}/${day}/${y}`; };
 const toggle = (arr,v) => arr.includes(v) ? arr.filter(x=>x!==v) : [...arr,v];
 const genId  = prefix => `${prefix}-${Math.random().toString(36).substr(2,9).toUpperCase()}`;
+
+// Validation helpers
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isValidPhone = (phone) => /^[\d\s\-\(\)\.+]+$/.test(phone) && phone.replace(/\D/g,'').length >= 10;
+
+// Venue validation
+function validateVenueSubmission(data) {
+  const errors = [];
+  if(!data.venueName?.trim()) errors.push('Venue name is required');
+  if(!data.venueType?.trim()) errors.push('Venue type is required');
+  if(!data.address?.trim()) errors.push('Street address is required');
+  if(!data.city?.trim()) errors.push('City is required');
+  if(!data.state?.trim()) errors.push('State is required');
+  if(!data.zip?.trim()) errors.push('ZIP code is required');
+  if(!data.squareFootage) errors.push('Square footage is required');
+  if(!data.capacity) errors.push('Capacity is required');
+  if(!data.indoorOutdoor?.trim()) errors.push('Space type is required');
+  if(!data.parkingSpaces) errors.push('Parking spaces is required');
+  if(!data.preferredEventTimes?.length) errors.push('Select at least one preferred event time');
+  if(!data.firstName?.trim()) errors.push('First name is required');
+  if(!data.lastName?.trim()) errors.push('Last name is required');
+  if(!data.email?.trim()) errors.push('Email is required');
+  if(data.email && !isValidEmail(data.email)) errors.push('Email format is invalid');
+  if(!data.phone?.trim()) errors.push('Phone is required');
+  if(data.phone && !isValidPhone(data.phone)) errors.push('Phone format is invalid');
+  if(!data.jobPosition?.trim()) errors.push('Job position is required');
+  if(!data.businessName?.trim()) errors.push('Business legal name is required');
+  if(!data.isDecisionMaker) errors.push('You must confirm you are the primary decision maker');
+  
+  const requiredDocs = Object.entries(data.documents || {})
+    .filter(([k]) => DOCS.find(d => d.key === k && d.required))
+    .map(([k]) => k);
+  const checkedDocs = Object.entries(data.documents || {})
+    .filter(([, v]) => v)
+    .map(([k]) => k);
+  if(requiredDocs.length !== checkedDocs.length) {
+    const missingDocs = requiredDocs.filter(d => !checkedDocs.includes(d));
+    errors.push(`Complete all required documents (missing: ${missingDocs.length})`);
+  }
+  
+  return errors;
+}
+
+// Vendor validation
+function validateVendorSubmission(data) {
+  const errors = [];
+  if(!data.businessName?.trim()) errors.push('Business name is required');
+  if(!data.category?.trim()) errors.push('Product category is required');
+  if(!data.description?.trim()) errors.push('Business description is required');
+  if(data.registrationType === 'specific' && !data.selectedEvents?.length) errors.push('Select at least one event');
+  if(data.registrationType === 'general' && !data.generalPreferences?.length) errors.push('Select at least one event type you\'re interested in');
+  if(!data.agreeToTerms) errors.push('You must agree to the terms and conditions');
+  if(!data.firstName?.trim()) errors.push('First name is required');
+  if(!data.lastName?.trim()) errors.push('Last name is required');
+  if(!data.email?.trim()) errors.push('Email is required');
+  if(data.email && !isValidEmail(data.email)) errors.push('Email format is invalid');
+  if(!data.phone?.trim()) errors.push('Phone is required');
+  if(data.phone && !isValidPhone(data.phone)) errors.push('Phone format is invalid');
+  
+  return errors;
+}
+
+// Show validation errors
+function showValidationError(errors) {
+  const message = errors.join('\n• ');
+  alert('❌ Please fix these issues:\n\n• ' + message);
+}
 
 // Save submission to Worker (fire & forget, never blocks UX)
 async function sendToWorker(payload) {
@@ -623,6 +690,12 @@ function VenueFlow({ onBack }) {
   };
 
   const handleSubmit = async () => {
+    const errors = validateVenueSubmission(d);
+    if(errors.length > 0) {
+      showValidationError(errors);
+      return;
+    }
+    
     const payload = { type:'venue', submissionId:subId, submittedAt:new Date().toISOString(), paymentStatus:'pending', ...d, documentsChecked: Object.entries(d.documents).filter(([,v])=>v).map(([k])=>k).join(', ') };
     await sendToWorker(payload);
     setShowPay(true);
@@ -929,6 +1002,12 @@ function VendorFlow({ onBack }) {
   const back = () => { if(step===0) onBack(); else {window.scrollTo(0,0);setStep(s=>s-1);} };
 
   const handleSubmit = async () => {
+    const errors = validateVendorSubmission(d);
+    if(errors.length > 0) {
+      showValidationError(errors);
+      return;
+    }
+    
     const selectedEventNames = d.selectedEvents.map(id=>UPCOMING_EVENTS.find(e=>e.id===id)?.name).filter(Boolean).join(', ');
     const payload = {
       type:'vendor', submissionId:subId, submittedAt:new Date().toISOString(),
@@ -1148,7 +1227,7 @@ function VendorFlow({ onBack }) {
                   <div><label className="inp-label">Phone</label><input className="inp" type="tel" value={d.phone} onChange={e=>upd('phone',e.target.value)} placeholder="(555) 123-4567" /></div>
                 </div>
 
-                <NavRow onBack={back} onNext={handleSubmit} nextLabel={`Proceed to Pay $${price} →`} nextGold={true} disabled={!d.firstName||!d.lastName||!d.email} />
+                <NavRow onBack={back} onNext={handleSubmit} nextLabel={`Proceed to Pay $${price} →`} nextGold={true} disabled={!d.firstName?.trim()||!d.lastName?.trim()||!d.email?.trim()||!isValidEmail(d.email)||!d.phone?.trim()||!isValidPhone(d.phone)} />
               </div>
             )}
 
