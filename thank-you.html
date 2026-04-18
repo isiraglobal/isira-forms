@@ -187,10 +187,11 @@ const LOGO_URL   = 'https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.
 
 // ── Parse URL params ─────────────────────────
 const params    = new URLSearchParams(window.location.search);
-const subId     = params.get('id')   || '';
+const subId     = params.get('id') || params.get('state_id') || '';
 const mode      = params.get('mode') || 'vendor'; // 'venue' | 'vendor'
-const txId      = params.get('checkout_id') || params.get('order_id') || params.get('whop_tx') || 'whop-' + Math.random().toString(36).substr(2,9).toUpperCase();
+const txId      = params.get('checkout_id') || params.get('order_id') || params.get('whop_tx') || params.get('receipt_id') || params.get('payment_id') || 'whop-' + Math.random().toString(36).substr(2,9).toUpperCase();
 const planParam = params.get('plan') || '';
+const checkoutStatus = params.get('checkout_status') || params.get('status') || 'unknown';
 
 // ── Confetti ─────────────────────────────────
 function fireConfetti() {
@@ -274,25 +275,28 @@ function buildNextSteps(mode) {
 
 // ── Main ──────────────────────────────────────
 async function init() {
-  if(!subId) {
+  // Check if we have both a submission ID and a valid checkout status
+  const isSuccess = (subId || txId) && (checkoutStatus === 'success' || checkoutStatus === 'paid');
+  
+  if(!isSuccess) {
     showState('error');
-    document.getElementById('error-msg').textContent = 'No submission ID found. Please return to the portal and try again.';
+    document.getElementById('error-msg').textContent = subId ? 'Payment status could not be verified. Please contact support.' : 'No submission ID found. Please return to the portal and try again.';
     return;
   }
 
   // Notify worker (fire & forget, don't block UX)
   const plan = getPlanLabel(mode, txId);
-  notifyWorker(subId, txId, plan, mode);
+  notifyWorker(subId || txId, txId, plan, mode);
 
   // Small delay for polish
   await new Promise(r => setTimeout(r, 1200));
 
   // Populate success state
-  document.getElementById('display-id').textContent   = subId;
+  document.getElementById('display-id').textContent   = subId || txId;
   document.getElementById('display-plan').textContent  = plan;
   document.getElementById('display-tx').textContent    = txId;
   document.getElementById('display-date').textContent  = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('id-display').textContent    = subId;
+  document.getElementById('id-display').textContent    = subId || txId;
 
   const subtitle = mode==='venue'
     ? 'Your venue application is confirmed. Our team will reach out within 24–48 hours.'
