@@ -1,4 +1,4 @@
-name = "fa-worker"
+name = "isira-forms"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
