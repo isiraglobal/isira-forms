@@ -511,12 +511,109 @@ function showValidationError(errors) {
 // Save submission to Worker (fire & forget, never blocks UX)
 async function sendToWorker(payload) {
   try {
-    await fetch(`${CONFIG.workerUrl}/submit`, {
+    console.log('[WORKER] Sending payload:', payload);
+    const response = await fetch(`${CONFIG.workerUrl}/submit`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(payload),
     });
-  } catch(e) { console.warn('Worker unreachable – data logged locally only', e); }
+    const result = await response.json();
+    console.log('[WORKER] Response:', result);
+    return result;
+  } catch(e) { 
+    console.error('[WORKER] Error:', e);
+    console.warn('Worker unreachable – data logged locally only', e); 
+  }
+}
+
+// Per-slide validation with error display
+function validateVenueSlide(step, data) {
+  const errors = {};
+  
+  if(step === 1) { // Venue Basics
+    if(!data.venueName?.trim()) errors.venueName = 'Venue name is required';
+    if(!data.venueType?.trim()) errors.venueType = 'Venue type is required';
+    if(data.venueType === 'Other' && !data.venueTypeOther?.trim()) errors.venueTypeOther = 'Please specify venue type';
+    if(!data.address?.trim()) errors.address = 'Street address is required';
+    if(!data.city?.trim()) errors.city = 'City is required';
+    if(!data.state?.trim()) errors.state = 'State is required';
+    if(!data.zip?.trim()) errors.zip = 'ZIP code is required';
+  } 
+  else if(step === 2) { // Space Specs
+    if(!data.squareFootage) errors.squareFootage = 'Square footage is required';
+    if(!data.capacity) errors.capacity = 'Capacity is required';
+    if(!data.indoorOutdoor?.trim()) errors.indoorOutdoor = 'Space type is required';
+    if(!data.parkingSpaces) errors.parkingSpaces = 'Parking spaces is required';
+  }
+  else if(step === 3) { // Legal Docs
+    const requiredDocs = DOCS.filter(d => d.required).map(d => d.key);
+    const checkedDocs = Object.entries(data.documents || {}).filter(([, v]) => v).map(([k]) => k);
+    if(requiredDocs.length !== checkedDocs.length) {
+      errors.documents = `Complete all required documents (${checkedDocs.length}/${requiredDocs.length})`;
+    }
+  }
+  else if(step === 4) { // Availability
+    if(!data.preferredEventTimes?.length) errors.preferredEventTimes = 'Select at least one preferred event time';
+  }
+  else if(step === 5) { // Contact
+    if(!data.firstName?.trim()) errors.firstName = 'First name is required';
+    if(!data.lastName?.trim()) errors.lastName = 'Last name is required';
+    if(!data.email?.trim()) errors.email = 'Email is required';
+    if(data.email && !isValidEmail(data.email)) errors.email = 'Email format is invalid';
+    if(!data.phone?.trim()) errors.phone = 'Phone is required';
+    if(data.phone && !isValidPhone(data.phone)) errors.phone = 'Phone format is invalid';
+    if(!data.jobPosition?.trim()) errors.jobPosition = 'Job position is required';
+    if(!data.businessName?.trim()) errors.businessName = 'Business legal name is required';
+    if(!data.isDecisionMaker) errors.isDecisionMaker = 'You must confirm you are the primary decision maker';
+  }
+  
+  return errors;
+}
+
+// Per-slide validation for vendor
+function validateVendorSlide(step, data) {
+  const errors = {};
+  
+  if(step === 1) { // Business Info
+    if(!data.businessName?.trim()) errors.businessName = 'Business name is required';
+    if(!data.category?.trim()) errors.category = 'Product category is required';
+    if(data.category === 'Other' && !data.categoryOther?.trim()) errors.categoryOther = 'Please specify category';
+    if(!data.description?.trim()) errors.description = 'Business description is required';
+  }
+  else if(step === 2) { // Event Selection
+    if(data.registrationType === 'specific' && !data.selectedEvents?.length) {
+      errors.selectedEvents = 'Select at least one event';
+    }
+    if(data.registrationType === 'general' && !data.generalPreferences?.length) {
+      errors.generalPreferences = 'Select at least one event type';
+    }
+  }
+  else if(step === 4) { // Terms
+    if(!data.agreeToTerms) errors.agreeToTerms = 'You must agree to the terms and conditions';
+  }
+  else if(step === 5) { // Contact
+    if(!data.firstName?.trim()) errors.firstName = 'First name is required';
+    if(!data.lastName?.trim()) errors.lastName = 'Last name is required';
+    if(!data.email?.trim()) errors.email = 'Email is required';
+    if(data.email && !isValidEmail(data.email)) errors.email = 'Email format is invalid';
+    if(!data.phone?.trim()) errors.phone = 'Phone is required';
+    if(data.phone && !isValidPhone(data.phone)) errors.phone = 'Phone format is invalid';
+  }
+  
+  return errors;
+}
+
+// ─────────────────────────────────────────────
+// ERROR DISPLAY COMPONENT
+// ─────────────────────────────────────────────
+function ErrorMessage({ field, errors }) {
+  if(!errors[field]) return null;
+  return (
+    <div style={{fontSize:'12.5px',color:'#dc2626',marginTop:'6px',display:'flex',alignItems:'flex-start',gap:'6px'}}>
+      <span style={{marginTop:'1px'}}>⚠</span>
+      <span>{errors[field]}</span>
+    </div>
+  );
 }
 
 // ─────────────────────────────────────────────
@@ -676,23 +773,35 @@ function VenueFlow({ onBack }) {
   const [step, setStep]     = React.useState(0);
   const [d, setD]           = React.useState(venueInit);
   const [showPay, setShowPay] = React.useState(false);
+  const [errors, setErrors] = React.useState({});
   const [subId]             = React.useState(() => genId('FA-VENUE'));
 
   const progress = (step / (VENUE_STEPS.length-1)) * 100;
-  const upd = (k,v) => setD(p => ({...p,[k]:v}));
+  const upd = (k,v) => { setD(p => ({...p,[k]:v})); setErrors(e => ({...e,[k]:undefined})); };
   const updDoc = k => setD(p => ({...p,documents:{...p.documents,[k]:!p.documents[k]}}));
 
   const next = () => {
-    if(step < VENUE_STEPS.length-1) { window.scrollTo(0,0); setStep(s=>s+1); fireConfetti(window.innerWidth/2, 60); }
+    if(step < VENUE_STEPS.length-1) { 
+      // Validate current slide before advancing
+      const slideErrors = validateVenueSlide(step, d);
+      if(Object.keys(slideErrors).length > 0) {
+        setErrors(slideErrors);
+        return;
+      }
+      setErrors({});
+      window.scrollTo(0,0); 
+      setStep(s=>s+1); 
+      fireConfetti(window.innerWidth/2, 60); 
+    }
   };
   const back = () => {
-    if(step===0) onBack(); else { window.scrollTo(0,0); setStep(s=>s-1); }
+    if(step===0) onBack(); else { window.scrollTo(0,0); setStep(s=>s-1); setErrors({}); }
   };
 
   const handleSubmit = async () => {
-    const errors = validateVenueSubmission(d);
-    if(errors.length > 0) {
-      showValidationError(errors);
+    const slideErrors = validateVenueSlide(5, d);
+    if(Object.keys(slideErrors).length > 0) {
+      setErrors(slideErrors);
       return;
     }
     
@@ -754,21 +863,22 @@ function VenueFlow({ onBack }) {
                 <div className="step-title">Venue Basics</div>
                 <div className="step-sub">Tell us about your space</div>
                 <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
-                  <div><label className="inp-label">Venue Name</label><input className="inp" value={d.venueName} onChange={e=>upd('venueName',e.target.value)} placeholder="e.g. The Market Hall" /></div>
+                  <div><label className="inp-label">Venue Name</label><input className="inp" value={d.venueName} onChange={e=>upd('venueName',e.target.value)} placeholder="e.g. The Market Hall" /><ErrorMessage field="venueName" errors={errors} /></div>
                   <div>
                     <label className="inp-label">Venue Type</label>
                     <select className="inp" value={d.venueType} onChange={e=>upd('venueType',e.target.value)}>
                       <option value="">Select type…</option>
                       {VENUE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
                     </select>
+                    <ErrorMessage field="venueType" errors={errors} />
                   </div>
-                  {d.venueType==='Other' && <div><label className="inp-label">Please specify</label><input className="inp" value={d.venueTypeOther} onChange={e=>upd('venueTypeOther',e.target.value)} placeholder="Describe your venue type" /></div>}
+                  {d.venueType==='Other' && <div><label className="inp-label">Please specify</label><input className="inp" value={d.venueTypeOther} onChange={e=>upd('venueTypeOther',e.target.value)} placeholder="Describe your venue type" /><ErrorMessage field="venueTypeOther" errors={errors} /></div>}
                   <div className="g2">
-                    <div><label className="inp-label">City</label><input className="inp" value={d.city} onChange={e=>upd('city',e.target.value)} placeholder="New York" /></div>
-                    <div><label className="inp-label">State</label><input className="inp" value={d.state} onChange={e=>upd('state',e.target.value)} placeholder="NY" /></div>
+                    <div><label className="inp-label">City</label><input className="inp" value={d.city} onChange={e=>upd('city',e.target.value)} placeholder="New York" /><ErrorMessage field="city" errors={errors} /></div>
+                    <div><label className="inp-label">State</label><input className="inp" value={d.state} onChange={e=>upd('state',e.target.value)} placeholder="NY" /><ErrorMessage field="state" errors={errors} /></div>
                   </div>
-                  <div><label className="inp-label">Street Address</label><input className="inp" value={d.address} onChange={e=>upd('address',e.target.value)} placeholder="123 Main Street" /></div>
-                  <div><label className="inp-label">ZIP Code</label><input className="inp" value={d.zip} onChange={e=>upd('zip',e.target.value)} placeholder="10001" /></div>
+                  <div><label className="inp-label">Street Address</label><input className="inp" value={d.address} onChange={e=>upd('address',e.target.value)} placeholder="123 Main Street" /><ErrorMessage field="address" errors={errors} /></div>
+                  <div><label className="inp-label">ZIP Code</label><input className="inp" value={d.zip} onChange={e=>upd('zip',e.target.value)} placeholder="10001" /><ErrorMessage field="zip" errors={errors} /></div>
                 </div>
                 <NavRow onBack={back} onNext={next} />
               </div>
@@ -782,8 +892,8 @@ function VenueFlow({ onBack }) {
                 <div className="step-sub">Help us match the right event to your space</div>
                 <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
                   <div className="g2">
-                    <div><label className="inp-label">Square Footage</label><input className="inp" type="number" value={d.squareFootage} onChange={e=>upd('squareFootage',e.target.value)} placeholder="5000" /></div>
-                    <div><label className="inp-label">Max Capacity</label><input className="inp" type="number" value={d.capacity} onChange={e=>upd('capacity',e.target.value)} placeholder="200" /></div>
+                    <div><label className="inp-label">Square Footage</label><input className="inp" type="number" value={d.squareFootage} onChange={e=>upd('squareFootage',e.target.value)} placeholder="5000" /><ErrorMessage field="squareFootage" errors={errors} /></div>
+                    <div><label className="inp-label">Max Capacity</label><input className="inp" type="number" value={d.capacity} onChange={e=>upd('capacity',e.target.value)} placeholder="200" /><ErrorMessage field="capacity" errors={errors} /></div>
                   </div>
                   <div>
                     <label className="inp-label">Space Type</label>
@@ -792,8 +902,9 @@ function VenueFlow({ onBack }) {
                         <button key={t} className={`chip ${d.indoorOutdoor===t?'active':''}`} onClick={()=>upd('indoorOutdoor',t)}>{t}</button>
                       ))}
                     </div>
+                    <ErrorMessage field="indoorOutdoor" errors={errors} />
                   </div>
-                  <div><label className="inp-label">Parking Spaces Available</label><input className="inp" type="number" value={d.parkingSpaces} onChange={e=>upd('parkingSpaces',e.target.value)} placeholder="50" /></div>
+                  <div><label className="inp-label">Parking Spaces Available</label><input className="inp" type="number" value={d.parkingSpaces} onChange={e=>upd('parkingSpaces',e.target.value)} placeholder="50" /><ErrorMessage field="parkingSpaces" errors={errors} /></div>
                   <label className="check-row" onClick={()=>upd('powerAccess',!d.powerAccess)}>
                     <div className={`check-box ${d.powerAccess?'checked':''}`}>{d.powerAccess&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
                     <div><div style={{fontWeight:500}}>220V Power Access</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>Suitable for food vendors and lighting</div></div>
@@ -824,6 +935,7 @@ function VenueFlow({ onBack }) {
                 <div className="step-label">Step 03</div>
                 <div className="step-title">Legal & Compliance</div>
                 <div className="step-sub">Required documentation for event hosting</div>
+                {errors.documents && <div style={{marginTop:12,marginBottom:12,fontSize:'12.5px',color:'#dc2626',background:'rgba(220,38,38,0.1)',border:'1.5px solid rgba(220,38,38,0.3)',borderRadius:'10px',padding:'10px 12px',display:'flex',gap:'6px',alignItems:'flex-start'}}><span>⚠</span><span>{errors.documents}</span></div>}
                 <div style={{marginTop:24}} className="scroll-inner">
                   {DOCS.map(doc=>{
                     const sel = d.documents[doc.key];
@@ -878,6 +990,7 @@ function VenueFlow({ onBack }) {
                         </button>
                       ))}
                     </div>
+                    <ErrorMessage field="preferredEventTimes" errors={errors} />
                   </div>
                   <div><label className="inp-label">Preferred Event Types</label><textarea className="inp" style={{height:90,resize:'none'}} value={d.preferredEventType} onChange={e=>upd('preferredEventType',e.target.value)} placeholder="e.g. art markets, food festivals, networking events" /></div>
                   <div className="g2">
@@ -897,19 +1010,20 @@ function VenueFlow({ onBack }) {
                 <div className="step-sub">Primary contact for venue partnership</div>
                 <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
                   <div className="g2">
-                    <div><label className="inp-label">First Name</label><input className="inp" value={d.firstName} onChange={e=>upd('firstName',e.target.value)} placeholder="Jane" /></div>
-                    <div><label className="inp-label">Last Name</label><input className="inp" value={d.lastName} onChange={e=>upd('lastName',e.target.value)} placeholder="Smith" /></div>
+                    <div><label className="inp-label">First Name</label><input className="inp" value={d.firstName} onChange={e=>upd('firstName',e.target.value)} placeholder="Jane" /><ErrorMessage field="firstName" errors={errors} /></div>
+                    <div><label className="inp-label">Last Name</label><input className="inp" value={d.lastName} onChange={e=>upd('lastName',e.target.value)} placeholder="Smith" /><ErrorMessage field="lastName" errors={errors} /></div>
                   </div>
-                  <div><label className="inp-label">Job Position</label><input className="inp" value={d.jobPosition} onChange={e=>upd('jobPosition',e.target.value)} placeholder="General Manager, Owner, Events Coordinator" /></div>
-                  <div><label className="inp-label">Email Address</label><input className="inp" type="email" value={d.email} onChange={e=>upd('email',e.target.value)} placeholder="jane@venue.com" /></div>
-                  <div><label className="inp-label">Phone Number</label><input className="inp" type="tel" value={d.phone} onChange={e=>upd('phone',e.target.value)} placeholder="(555) 123-4567" /></div>
-                  <div><label className="inp-label">Business Legal Name</label><input className="inp" value={d.businessName} onChange={e=>upd('businessName',e.target.value)} placeholder="Smith Venue Properties LLC" /></div>
-                  <label className="check-row" onClick={()=>upd('isDecisionMaker',!d.isDecisionMaker)}>
+                  <div><label className="inp-label">Job Position</label><input className="inp" value={d.jobPosition} onChange={e=>upd('jobPosition',e.target.value)} placeholder="General Manager, Owner, Events Coordinator" /><ErrorMessage field="jobPosition" errors={errors} /></div>
+                  <div><label className="inp-label">Email Address</label><input className="inp" type="email" value={d.email} onChange={e=>upd('email',e.target.value)} placeholder="jane@venue.com" /><ErrorMessage field="email" errors={errors} /></div>
+                  <div><label className="inp-label">Phone Number</label><input className="inp" type="tel" value={d.phone} onChange={e=>upd('phone',e.target.value)} placeholder="(555) 123-4567" /><ErrorMessage field="phone" errors={errors} /></div>
+                  <div><label className="inp-label">Business Legal Name</label><input className="inp" value={d.businessName} onChange={e=>upd('businessName',e.target.value)} placeholder="Smith Venue Properties LLC" /><ErrorMessage field="businessName" errors={errors} /></div>
+                  <label className="check-row" onClick={()=>upd('isDecisionMaker',!d.isDecisionMaker)} style={errors.isDecisionMaker ? {borderColor:'rgba(220,38,38,0.5)',background:'rgba(220,38,38,0.05)'} : {}}>
                     <div className={`check-box ${d.isDecisionMaker?'checked':''}`}>{d.isDecisionMaker&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
                     <div><div style={{fontWeight:500}}>Primary Decision Maker</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>I have authority to approve events at this venue</div></div>
                   </label>
+                  <ErrorMessage field="isDecisionMaker" errors={errors} />
                 </div>
-                <NavRow onBack={back} onNext={next} />
+                <NavRow onBack={back} onNext={handleSubmit} nextLabel="Submit & Choose Plan →" nextGold={true} />
               </div>
             )}
 
@@ -983,6 +1097,7 @@ function VendorFlow({ onBack }) {
   const [step, setStep]       = React.useState(0);
   const [d, setD]             = React.useState(vendorInit);
   const [showPay, setShowPay] = React.useState(false);
+  const [errors, setErrors]   = React.useState({});
   const [subId]               = React.useState(() => genId('FA-VENDOR'));
 
   const calcPrice = () => {
@@ -997,14 +1112,29 @@ function VendorFlow({ onBack }) {
   const price = calcPrice();
 
   const progress = (step / (VENDOR_STEPS.length-1)) * 100;
-  const upd = (k,v) => setD(p=>({...p,[k]:v}));
-  const next = () => { if(step<VENDOR_STEPS.length-1){window.scrollTo(0,0);setStep(s=>s+1);fireConfetti(window.innerWidth/2,60);} };
-  const back = () => { if(step===0) onBack(); else {window.scrollTo(0,0);setStep(s=>s-1);} };
+  const upd = (k,v) => { setD(p=>({...p,[k]:v})); setErrors(e => ({...e,[k]:undefined})); };
+  
+  const next = () => { 
+    if(step<VENDOR_STEPS.length-1){
+      const slideErrors = validateVendorSlide(step, d);
+      if(Object.keys(slideErrors).length > 0) {
+        setErrors(slideErrors);
+        return;
+      }
+      setErrors({});
+      window.scrollTo(0,0);
+      setStep(s=>s+1);
+      fireConfetti(window.innerWidth/2,60);
+    } 
+  };
+  const back = () => { 
+    if(step===0) onBack(); else {window.scrollTo(0,0);setStep(s=>s-1); setErrors({});} 
+  };
 
   const handleSubmit = async () => {
-    const errors = validateVendorSubmission(d);
-    if(errors.length > 0) {
-      showValidationError(errors);
+    const slideErrors = validateVendorSlide(5, d);
+    if(Object.keys(slideErrors).length > 0) {
+      setErrors(slideErrors);
       return;
     }
     
@@ -1067,16 +1197,17 @@ function VendorFlow({ onBack }) {
                 <div className="step-title">Business Information</div>
                 <div className="step-sub">Tell us about your business</div>
                 <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
-                  <div><label className="inp-label">Business Name</label><input className="inp" value={d.businessName} onChange={e=>upd('businessName',e.target.value)} placeholder="Your Business Name" /></div>
+                  <div><label className="inp-label">Business Name</label><input className="inp" value={d.businessName} onChange={e=>upd('businessName',e.target.value)} placeholder="Your Business Name" /><ErrorMessage field="businessName" errors={errors} /></div>
                   <div>
                     <label className="inp-label">Product Category</label>
                     <select className="inp" value={d.category} onChange={e=>upd('category',e.target.value)}>
                       <option value="">Select category…</option>
                       {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
                     </select>
+                    <ErrorMessage field="category" errors={errors} />
                   </div>
-                  {d.category==='Other' && <div><label className="inp-label">Please specify</label><input className="inp" value={d.categoryOther} onChange={e=>upd('categoryOther',e.target.value)} placeholder="Describe your category" /></div>}
-                  <div><label className="inp-label">Business Description</label><textarea className="inp" style={{height:90,resize:'none'}} value={d.description} onChange={e=>upd('description',e.target.value)} placeholder="Describe what you sell in 2–3 sentences…" /></div>
+                  {d.category==='Other' && <div><label className="inp-label">Please specify</label><input className="inp" value={d.categoryOther} onChange={e=>upd('categoryOther',e.target.value)} placeholder="Describe your category" /><ErrorMessage field="categoryOther" errors={errors} /></div>}
+                  <div><label className="inp-label">Business Description</label><textarea className="inp" style={{height:90,resize:'none'}} value={d.description} onChange={e=>upd('description',e.target.value)} placeholder="Describe what you sell in 2–3 sentences…" /><ErrorMessage field="description" errors={errors} /></div>
                   <div className="g2">
                     <div><label className="inp-label">Website (optional)</label><input className="inp" type="url" value={d.website} onChange={e=>upd('website',e.target.value)} placeholder="yoursite.com" /></div>
                     <div><label className="inp-label">Instagram (optional)</label><input className="inp" value={d.instagram} onChange={e=>upd('instagram',e.target.value)} placeholder="@handle" /></div>
@@ -1114,6 +1245,7 @@ function VendorFlow({ onBack }) {
                           </div>
                         );
                       })}
+                      <ErrorMessage field="selectedEvents" errors={errors} />
                     </div>
                   ) : (
                     <div>
@@ -1123,6 +1255,7 @@ function VendorFlow({ onBack }) {
                           <button key={ev.id} className={`chip ${d.generalPreferences.includes(ev.name)?'active':''}`} onClick={()=>upd('generalPreferences',toggle(d.generalPreferences,ev.name))}>{ev.name}</button>
                         ))}
                       </div>
+                      <ErrorMessage field="generalPreferences" errors={errors} />
                       <div className="info-banner">
                         <strong>Early Bird Advantage:</strong> Registering in the General Pool at $199 — register for specific events at $299, or multiple events at $449.
                       </div>
@@ -1189,10 +1322,11 @@ function VendorFlow({ onBack }) {
                     <p><strong>6. Marketing:</strong> By participating, you grant Foreign Affairs rights to photograph your booth and products for promotional use across all platforms.</p>
                     <p><strong>7. Force Majeure:</strong> In the event of cancellation due to circumstances beyond our control, credits will be issued for a future event.</p>
                   </div>
-                  <label className="check-row" style={{marginTop:16,background:'rgba(201,169,97,0.08)',borderColor:'rgba(201,169,97,0.2)'}} onClick={()=>upd('agreeToTerms',!d.agreeToTerms)}>
+                  <label className="check-row" style={{marginTop:16,background:'rgba(201,169,97,0.08)',borderColor:'rgba(201,169,97,0.2)',borderStyle:'solid'}} onClick={()=>upd('agreeToTerms',!d.agreeToTerms)}>
                     <div className={`check-box ${d.agreeToTerms?'checked':''}`}>{d.agreeToTerms&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
                     <div><div style={{fontWeight:600}}>I agree to the terms and conditions</div><div style={{fontSize:13,color:'rgba(15,12,8,0.5)',marginTop:2}}>I understand document upload will be required after payment.</div></div>
                   </label>
+                  <ErrorMessage field="agreeToTerms" errors={errors} />
                 </div>
                 <NavRow onBack={back} onNext={next} nextLabel="Continue to Payment →" disabled={!d.agreeToTerms} />
               </div>
@@ -1220,11 +1354,11 @@ function VendorFlow({ onBack }) {
 
                 <div style={{display:'flex',flexDirection:'column',gap:14}}>
                   <div className="g2">
-                    <div><label className="inp-label">First Name</label><input className="inp" value={d.firstName} onChange={e=>upd('firstName',e.target.value)} placeholder="Jane" /></div>
-                    <div><label className="inp-label">Last Name</label><input className="inp" value={d.lastName} onChange={e=>upd('lastName',e.target.value)} placeholder="Doe" /></div>
+                    <div><label className="inp-label">First Name</label><input className="inp" value={d.firstName} onChange={e=>upd('firstName',e.target.value)} placeholder="Jane" /><ErrorMessage field="firstName" errors={errors} /></div>
+                    <div><label className="inp-label">Last Name</label><input className="inp" value={d.lastName} onChange={e=>upd('lastName',e.target.value)} placeholder="Doe" /><ErrorMessage field="lastName" errors={errors} /></div>
                   </div>
-                  <div><label className="inp-label">Email</label><input className="inp" type="email" value={d.email} onChange={e=>upd('email',e.target.value)} placeholder="vendor@example.com" /></div>
-                  <div><label className="inp-label">Phone</label><input className="inp" type="tel" value={d.phone} onChange={e=>upd('phone',e.target.value)} placeholder="(555) 123-4567" /></div>
+                  <div><label className="inp-label">Email</label><input className="inp" type="email" value={d.email} onChange={e=>upd('email',e.target.value)} placeholder="vendor@example.com" /><ErrorMessage field="email" errors={errors} /></div>
+                  <div><label className="inp-label">Phone</label><input className="inp" type="tel" value={d.phone} onChange={e=>upd('phone',e.target.value)} placeholder="(555) 123-4567" /><ErrorMessage field="phone" errors={errors} /></div>
                 </div>
 
                 <NavRow onBack={back} onNext={handleSubmit} nextLabel={`Proceed to Pay $${price} →`} nextGold={true} disabled={!d.firstName?.trim()||!d.lastName?.trim()||!d.email?.trim()||!isValidEmail(d.email)||!d.phone?.trim()||!isValidPhone(d.phone)} />
