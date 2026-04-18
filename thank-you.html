@@ -1,252 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Payment Confirmed — Foreign Affairs</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--esp:#0f0c08;--gold:#c9a961;--goldl:#e2c47a;--cream:#f4e4c1}
-html{scroll-behavior:smooth}
-body{background:var(--esp);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;overflow-x:hidden}
-::selection{background:rgba(201,169,97,.3);color:var(--esp)}
-button{font-family:'Jost',sans-serif;cursor:pointer;border:none;outline:none}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Confirmed — Foreign Affairs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --espresso: #0f0c08;
+      --gold: #c9a961;
+      --gold-light: #e2c47a;
+      --cream: #f4e4c1;
+    }
+    body {
+      background: var(--espresso);
+      color: var(--cream);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
-@keyframes shimmer{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
-@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,169,97,.4)}50%{transform:scale(1.06);box-shadow:0 0 0 18px rgba(201,169,97,0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes cffall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+    @keyframes fadeUp   { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes shimmer  { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
+    @keyframes pulse    { 0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,169,97,0.4);} 50%{transform:scale(1.05);box-shadow:0 0 0 20px rgba(201,169,97,0);} }
+    @keyframes spin     { to{transform:rotate(360deg);} }
+    @keyframes confetti-fall { 0%{transform:translateY(-10px) rotate(0deg);opacity:1;} 100%{transform:translateY(100vh) rotate(720deg);opacity:0;} }
 
-.card{
-  background:var(--cream);border-radius:26px;padding:50px 46px;max-width:540px;width:100%;
-  color:var(--esp);box-shadow:0 36px 72px -10px rgba(0,0,0,.55),0 0 0 1px rgba(201,169,97,.13);
-  position:relative;overflow:hidden;animation:fadeUp .65s ease both;
-}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,var(--gold),var(--goldl),var(--gold),transparent);background-size:200% 100%;animation:shimmer 2.5s ease infinite;border-radius:26px 26px 0 0}
-@media(max-width:520px){.card{padding:30px 20px;border-radius:18px}}
+    .card {
+      background: var(--cream);
+      border-radius: 28px;
+      padding: 52px 48px;
+      max-width: 560px;
+      width: 100%;
+      color: var(--espresso);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,169,97,0.15);
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.7s ease both;
+    }
+    .card::before {
+      content:'';
+      position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+      background-size:200% 100%;
+      animation: shimmer 2.5s ease infinite;
+    }
+    @media(max-width:520px){ .card { padding:32px 22px; border-radius:20px; } }
 
-.logo-row{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:34px}
-.logo-img{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--gold);object-fit:cover}
-.logo-name{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.22em;color:var(--esp)}
+    .check-circle {
+      width:96px; height:96px; border-radius:50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      display:flex; align-items:center; justify-content:center;
+      margin:0 auto 28px;
+      font-size:40px;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
 
-.check-circle{
-  width:90px;height:90px;border-radius:50%;
-  background:linear-gradient(135deg,var(--gold),var(--goldl));
-  display:flex;align-items:center;justify-content:center;
-  margin:0 auto 26px;box-shadow:0 10px 28px rgba(201,169,97,.32);
-  animation:pulse 2.8s ease-in-out infinite;
-}
+    .logo-row {
+      display:flex; align-items:center; justify-content:center; gap:12px;
+      margin-bottom:36px;
+    }
+    .logo-img { width:40px; height:40px; border-radius:50%; border:1.5px solid var(--gold); object-fit:cover; }
+    .logo-text { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.2em; color:var(--espresso); }
 
-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,5vw,40px);font-weight:300;color:var(--esp);text-align:center;margin-bottom:10px}
-.subtitle{font-size:14.5px;color:rgba(15,12,8,.45);text-align:center;line-height:1.7;margin-bottom:28px;max-width:360px;margin-left:auto;margin-right:auto}
+    h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(30px,5vw,42px); font-weight:300; color:var(--espresso); text-align:center; line-height:1.15; margin-bottom:12px; }
+    .subtitle { font-size:15px; color:rgba(15,12,8,0.5); text-align:center; line-height:1.7; margin-bottom:32px; max-width:380px; margin-left:auto; margin-right:auto; }
 
-.info-block{background:rgba(15,12,8,.05);border:1.5px solid rgba(15,12,8,.08);border-radius:14px;padding:18px;margin-bottom:13px}
-.info-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:13px;padding:5.5px 0;border-bottom:1px solid rgba(15,12,8,.06)}
-.info-row:last-child{border-bottom:none}
-.info-k{color:rgba(15,12,8,.42)}
-.info-v{font-weight:500;text-align:right;color:var(--esp);word-break:break-all}
+    .info-block {
+      background:rgba(15,12,8,0.05); border:1.5px solid rgba(15,12,8,0.08);
+      border-radius:16px; padding:20px; margin-bottom:14px;
+    }
+    .info-row { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; font-size:13.5px; padding:6px 0; border-bottom:1px solid rgba(15,12,8,0.06); }
+    .info-row:last-child { border-bottom:none; }
+    .info-key { color:rgba(15,12,8,0.45); }
+    .info-val { font-weight:500; text-align:right; color:var(--espresso); word-break:break-all; }
 
-.badge-paid{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.12);border:1.5px solid rgba(34,197,94,.28);color:#15803d;border-radius:50px;padding:5px 13px;font-size:12.5px;font-weight:600}
-.badge-pending{display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,.12);border:1.5px solid rgba(245,158,11,.28);color:#b45309;border-radius:50px;padding:5px 13px;font-size:12.5px;font-weight:600}
+    .badge-paid {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(34,197,94,0.12); border:1.5px solid rgba(34,197,94,0.3);
+      color:#15803d; border-radius:50px; padding:6px 14px; font-size:13px; font-weight:600;
+    }
+    .badge-pending {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(245,158,11,0.12); border:1.5px solid rgba(245,158,11,0.3);
+      color:#b45309; border-radius:50px; padding:6px 14px; font-size:13px; font-weight:600;
+    }
 
-.steps-wrap{list-style:none;margin:6px 0}
-.steps-wrap li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(15,12,8,.06);font-size:13px;color:rgba(15,12,8,.6);line-height:1.5}
-.steps-wrap li:last-child{border-bottom:none}
-.step-num{width:21px;height:21px;border-radius:50%;background:var(--gold);color:var(--esp);font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+    .steps-list { list-style:none; margin-top:8px; }
+    .steps-list li { display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid rgba(15,12,8,0.06); font-size:13.5px; color:rgba(15,12,8,0.65); line-height:1.5; }
+    .steps-list li:last-child { border-bottom:none; }
+    .step-num { width:22px; height:22px; border-radius:50%; background:var(--gold); color:var(--espresso); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
 
-.btn{display:block;width:100%;text-align:center;padding:15px;border-radius:13px;font-size:14.5px;font-weight:500;letter-spacing:.04em;cursor:pointer;transition:all .2s;text-decoration:none;border:none;font-family:'Jost',sans-serif;margin-bottom:10px}
-.btn-dark{background:var(--esp);color:var(--cream)}
-.btn-dark:hover{background:#1e190f;transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.2)}
-.btn-outline{background:none;color:var(--esp);border:2px solid rgba(15,12,8,.18)}
-.btn-outline:hover{background:rgba(15,12,8,.05)}
+    .btn {
+      display:block; width:100%; text-align:center; padding:16px;
+      border-radius:14px; font-size:15px; font-weight:500; letter-spacing:0.04em;
+      cursor:pointer; transition:all 0.2s; text-decoration:none; border:none; font-family:'Jost',sans-serif;
+    }
+    .btn-dark  { background:var(--espresso); color:var(--cream); }
+    .btn-dark:hover { background:#1e190f; transform:translateY(-1px); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+    .btn-outline { background:none; color:var(--espresso); border:2px solid rgba(15,12,8,0.2); }
+    .btn-outline:hover { background:rgba(15,12,8,0.05); }
 
-.spinner{width:22px;height:22px;border:2.5px solid rgba(201,169,97,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .85s linear infinite;margin:0 auto 14px}
+    .spinner { width:22px; height:22px; border:2.5px solid rgba(201,169,97,0.2); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
 
-.state-center{text-align:center;padding:20px 0}
+    .status-section { text-align:center; padding:28px 0; }
+    .status-section p { color:rgba(15,12,8,0.5); font-size:14px; margin-top:8px; }
 
-#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:9999;width:100%;height:100%}
+    /* Confetti */
+    .confetti-piece {
+      position:fixed; width:10px; height:10px;
+      animation:confetti-fall linear forwards;
+      pointer-events:none; z-index:999;
+    }
 
-#id-mono{font-family:monospace;font-size:10.5px;color:rgba(15,12,8,.28);text-align:center;margin-top:14px}
-</style>
+    #id-display { font-family:monospace; font-size:11px; color:rgba(15,12,8,0.3); text-align:center; margin-top:16px; }
+
+    .whop-tx { font-size:12px; color:rgba(15,12,8,0.4); text-align:center; margin-top:8px; }
+  </style>
 </head>
 <body>
 
-<canvas id="confetti-canvas"></canvas>
+<canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:998;width:100%;height:100%;"></canvas>
 
-<div class="card" id="card">
+<div class="card" id="main-card">
   <div class="logo-row">
-    <img src="https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG" class="logo-img" alt="FA"/>
-    <span class="logo-name">FOREIGN AFFAIRS</span>
+    <img src="https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG" alt="FA" class="logo-img" />
+    <span class="logo-text">FOREIGN AFFAIRS</span>
   </div>
 
-  <!-- LOADING -->
-  <div id="state-loading" class="state-center">
+  <!-- Loading state -->
+  <div id="state-loading" class="status-section">
     <div class="spinner"></div>
-    <p style="color:rgba(15,12,8,.45);font-size:14px">Verifying your payment…</p>
+    <p>Verifying your payment…</p>
   </div>
 
-  <!-- SUCCESS -->
-  <div id="state-success" style="display:none">
-    <div class="check-circle">
-      <svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M3 16L14 27.5L37 3" stroke="#0f0c08" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
+  <!-- Success state -->
+  <div id="state-success" style="display:none;">
+    <div class="check-circle">✓</div>
     <h1>Payment Confirmed!</h1>
-    <p class="subtitle" id="success-sub">You're all set. Welcome to the Foreign Affairs community.</p>
+    <p class="subtitle" id="success-subtitle">You're all set. Welcome to the Foreign Affairs community.</p>
 
-    <div class="info-block">
-      <div class="info-row"><span class="info-k">Status</span><span class="info-v"><span class="badge-paid">● Paid</span></span></div>
-      <div class="info-row"><span class="info-k">Application ID</span><span class="info-v" id="d-id">—</span></div>
-      <div class="info-row"><span class="info-k">Plan</span><span class="info-v" id="d-plan">—</span></div>
-      <div class="info-row"><span class="info-k">Transaction</span><span class="info-v" id="d-tx">—</span></div>
-      <div class="info-row"><span class="info-k">Date</span><span class="info-v" id="d-date">—</span></div>
+    <div class="info-block" id="payment-details" style="margin-bottom:20px;">
+      <div class="info-row"><span class="info-key">Status</span><span class="info-val"><span class="badge-paid">● Paid</span></span></div>
+      <div class="info-row"><span class="info-key">Application ID</span><span class="info-val" id="display-id">—</span></div>
+      <div class="info-row"><span class="info-key">Plan</span><span class="info-val" id="display-plan">—</span></div>
+      <div class="info-row"><span class="info-key">Whop Transaction</span><span class="info-val" id="display-tx">—</span></div>
+      <div class="info-row"><span class="info-key">Date</span><span class="info-val" id="display-date">—</span></div>
     </div>
 
     <div class="info-block">
-      <div style="font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(15,12,8,.38);margin-bottom:10px">Next Steps</div>
-      <ul class="steps-wrap" id="next-steps"></ul>
+      <div style="font-size:12px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(15,12,8,0.4);margin-bottom:12px;">Next Steps</div>
+      <ul class="steps-list" id="next-steps">
+        <!-- filled by JS -->
+      </ul>
     </div>
 
-    <div style="margin-top:22px">
+    <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px;">
       <a href="/" class="btn btn-dark">Return to Portal →</a>
-      <a href="https://calendly.com/foreignaffairs-venue/intro" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="calendly-btn" style="display:none">Schedule Your Onboarding Call</a>
+      <a href="https://calendly.com/foreignaffairs-venue/intro" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="calendly-btn" style="display:none;">Schedule Your Onboarding Call</a>
     </div>
-    <div id="id-mono"></div>
+
+    <div id="id-display"></div>
   </div>
 
-  <!-- ERROR -->
-  <div id="state-error" style="display:none" class="state-center">
-    <div style="font-size:46px;margin-bottom:16px">⚠️</div>
-    <h1 style="font-size:26px;margin-bottom:10px">Something went wrong</h1>
-    <p id="error-msg" style="color:rgba(15,12,8,.45);font-size:14px;line-height:1.7">We couldn't verify your payment. Please contact support or return to the portal.</p>
-    <a href="/" class="btn btn-dark" style="margin-top:24px">Return to Portal</a>
+  <!-- Error state -->
+  <div id="state-error" style="display:none;" class="status-section">
+    <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+    <h1 style="font-size:28px;">Something went wrong</h1>
+    <p id="error-msg" style="margin-top:8px;">We couldn't verify your payment. Please contact support.</p>
+    <a href="/" class="btn btn-dark" style="margin-top:24px;display:block;">Return to Portal</a>
   </div>
 </div>
 
 <script>
-/* ─── CONFIG ─────────────────────────────── */
+// ── CONFIG ──────────────────────────────────
 const WORKER_URL = 'https://form-worker.isiraglobal.workers.dev/';
+const LOGO_URL   = 'https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG';
 
-/* ─── CONFETTI ───────────────────────────── */
-function fireConfetti(){
-  const cv=document.getElementById('confetti-canvas');
-  const ctx=cv.getContext('2d');
-  cv.width=window.innerWidth; cv.height=window.innerHeight;
-  const cols=['#c9a961','#f4e4c1','#d4af37','#ffffff','#ffd700','#e2c47a'];
-  const pts=Array.from({length:160},()=>({
-    x:Math.random()*cv.width, y:-20,
-    vx:(Math.random()-.5)*5, vy:Math.random()*5+2,
-    col:cols[Math.floor(Math.random()*cols.length)],
-    sz:Math.random()*10+3, rot:Math.random()*360,
-    rs:(Math.random()-.5)*9, a:1,
+// ── Parse URL params ─────────────────────────
+const params    = new URLSearchParams(window.location.search);
+const subId     = params.get('id')   || '';
+const mode      = params.get('mode') || 'vendor'; // 'venue' | 'vendor'
+const txId      = params.get('checkout_id') || params.get('order_id') || params.get('whop_tx') || 'whop-' + Math.random().toString(36).substr(2,9).toUpperCase();
+const planParam = params.get('plan') || '';
+
+// ── Confetti ─────────────────────────────────
+function fireConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors  = ['#c9a961','#f4e4c1','#d4af37','#ffffff','#ffd700','#e2c47a'];
+  const particles = Array.from({length:150}, () => ({
+    x:(Math.random()*canvas.width), y:-20,
+    vx:(Math.random()-0.5)*4, vy:Math.random()*4+2,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    size:Math.random()*9+3, rotation:Math.random()*360,
+    rotSpeed:(Math.random()-0.5)*8, alpha:1,
   }));
   let raf;
-  function loop(){
-    ctx.clearRect(0,0,cv.width,cv.height);
+  const loop = () => {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     let alive=false;
-    pts.forEach(p=>{
-      p.x+=p.vx; p.y+=p.vy; p.rot+=p.rs; p.a-=.007;
-      if(p.a>0&&p.y<cv.height){alive=true;ctx.save();ctx.globalAlpha=Math.max(0,p.a);ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.col;ctx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz);ctx.restore();}
+    particles.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy; p.rotation+=p.rotSpeed; p.alpha-=0.006;
+      if(p.alpha>0 && p.y<canvas.height){ alive=true; ctx.save(); ctx.globalAlpha=Math.max(0,p.alpha); ctx.translate(p.x,p.y); ctx.rotate(p.rotation*Math.PI/180); ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size); ctx.restore(); }
     });
-    if(alive)raf=requestAnimationFrame(loop);else ctx.clearRect(0,0,cv.width,cv.height);
-  }
+    if(alive) raf=requestAnimationFrame(loop);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  };
   loop();
 }
 
-/* ─── STATE HELPERS ─────────────────────── */
-function showState(name){
-  ['loading','success','error'].forEach(s=>{
-    document.getElementById('state-'+s).style.display=s===name?'block':'none';
+// ── Show states ───────────────────────────────
+function showState(name) {
+  ['loading','success','error'].forEach(s => {
+    document.getElementById('state-'+s).style.display = s===name ? 'block' : 'none';
   });
 }
-function setText(id,val){ const e=document.getElementById(id); if(e) e.textContent=val; }
-function setHTML(id,val){ const e=document.getElementById(id); if(e) e.innerHTML=val; }
 
-/* ─── PLAN LABEL ────────────────────────── */
-function getPlanLabel(planParam,txId){
-  if(!planParam){
-    // Guess from URL or transaction
-    if(txId&&txId.includes('199')) return 'Starter — $199';
-    if(txId&&txId.includes('299')) return 'Growth — $299';
-    if(txId&&txId.includes('449')) return 'Premium — $449';
-    return 'Vendor Registration';
-  }
-  const p=decodeURIComponent(planParam);
-  if(p.toLowerCase().includes('starter')||p==='199') return 'Starter — $199';
-  if(p.toLowerCase().includes('growth')||p==='299')  return 'Growth — $299';
-  if(p.toLowerCase().includes('premium')||p==='449') return 'Premium — $449';
-  return p;
+// ── Determine plan label ──────────────────────
+function getPlanLabel(mode, txId) {
+  if(mode==='venue') return 'Venue Partner — Free Review';
+  if(planParam.includes('199')) return 'Vendor Early Bird — $199';
+  if(planParam.includes('299')) return 'Vendor Standard — $299';
+  if(planParam.includes('449')) return 'Vendor Premium — $449';
+  if(planParam.includes('early')) return 'Vendor Early Bird — $199';
+  if(planParam.includes('standard')) return 'Vendor Standard — $299';
+  return 'Vendor Registration';
 }
 
-/* ─── NOTIFY WORKER ─────────────────────── */
-async function notifyWorker(submissionId,txId,plan,mode,paidAt){
-  if(!WORKER_URL||WORKER_URL.includes('YOUR_SUBDOMAIN')) return;
-  try{
-    await fetch(WORKER_URL+'/payment-confirm',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({submissionId,whopTransactionId:txId,plan,mode,paidAt,paymentStatus:'paid'}),
+// ── Notify Worker to update Sheets status ────
+async function notifyWorker(submissionId, txId, plan, mode) {
+  try {
+    const res = await fetch(`${WORKER_URL}/payment-confirm`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ submissionId, whopTransactionId:txId, plan, mode, paidAt:new Date().toISOString(), paymentStatus:'paid' }),
     });
-  }catch(e){console.warn('Worker notify failed (non-blocking):',e);}
+    return res.ok;
+  } catch(e) {
+    console.warn('Worker notify failed (non-blocking):', e);
+    return false;
+  }
 }
 
-/* ─── NEXT STEPS ────────────────────────── */
-function buildSteps(mode){
-  const steps=mode==='venue'
-    ? ['Check your email for venue review confirmation.',
-       'Schedule your 15-minute venue assessment call (button above).',
-       'Upload required compliance documents via secure link.',
-       'Receive event assignment & partnership agreement.']
-    : ['Check your email for your payment receipt.',
-       'Upload required documents (business license, insurance) via secure email link.',
-       'Receive event assignment and booth confirmation details.',
-       'Join our vendor WhatsApp group for event-day logistics.'];
-  return steps.map((s,i)=>`<li><div class="step-num">${i+1}</div><span>${s}</span></li>`).join('');
+// ── Build next steps list ─────────────────────
+function buildNextSteps(mode) {
+  const steps = mode==='venue'
+    ? [
+        'Check your email for venue review confirmation.',
+        'Schedule your 15-minute venue assessment call.',
+        'Upload required compliance documents via secure link.',
+        'Receive event assignment & partnership agreement.',
+      ]
+    : [
+        'Check your email for payment receipt.',
+        'Upload required documents (license, insurance) via secure email link.',
+        'Receive event assignment and booth confirmation.',
+        'Join our vendor WhatsApp group for event-day logistics.',
+      ];
+  const ul = document.getElementById('next-steps');
+  ul.innerHTML = steps.map((s,i) => `<li><div class="step-num">${i+1}</div><span>${s}</span></li>`).join('');
 }
 
-/* ─── MAIN INIT ─────────────────────────── */
-async function init(){
-  const params=new URLSearchParams(window.location.search);
-  const subId   = params.get('id')||'';
-  const mode    = params.get('mode')||'vendor';
-  // Whop appends checkout_id / order_id automatically on redirect
-  const txId    = params.get('checkout_id')||params.get('order_id')||params.get('whop_tx')||('WH-'+Math.random().toString(36).substr(2,8).toUpperCase());
-  const planParam=params.get('plan')||'';
-  const paidAt  = new Date().toISOString();
-
-  if(!subId){
+// ── Main ──────────────────────────────────────
+async function init() {
+  if(!subId) {
     showState('error');
-    document.getElementById('error-msg').textContent='No submission ID found. Please return to the portal and try again.';
+    document.getElementById('error-msg').textContent = 'No submission ID found. Please return to the portal and try again.';
     return;
   }
 
-  const plan=getPlanLabel(planParam,txId);
+  // Notify worker (fire & forget, don't block UX)
+  const plan = getPlanLabel(mode, txId);
+  notifyWorker(subId, txId, plan, mode);
 
-  // Notify worker (fire & forget — don't block UI)
-  notifyWorker(subId,txId,plan,mode,paidAt);
+  // Small delay for polish
+  await new Promise(r => setTimeout(r, 1200));
 
-  // Brief delay for polish
-  await new Promise(r=>setTimeout(r,1100));
+  // Populate success state
+  document.getElementById('display-id').textContent   = subId;
+  document.getElementById('display-plan').textContent  = plan;
+  document.getElementById('display-tx').textContent    = txId;
+  document.getElementById('display-date').textContent  = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('id-display').textContent    = subId;
 
-  // Populate success
-  setText('d-id',  subId);
-  setText('d-plan', plan);
-  setText('d-tx',   txId);
-  setText('d-date', new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}));
-  document.getElementById('id-mono').textContent=subId;
-
-  const subtitle=mode==='venue'
+  const subtitle = mode==='venue'
     ? 'Your venue application is confirmed. Our team will reach out within 24–48 hours.'
-    : 'Your vendor spot is secured. Check your email for everything you need.';
-  setText('success-sub',subtitle);
+    : 'Your vendor spot is secured. Check your email for next steps.';
+  document.getElementById('success-subtitle').textContent = subtitle;
 
-  if(mode==='venue'){
-    document.getElementById('calendly-btn').style.display='block';
+  if(mode==='venue') {
+    document.getElementById('calendly-btn').style.display = 'block';
   }
 
-  setHTML('next-steps',buildSteps(mode));
+  buildNextSteps(mode);
   showState('success');
   fireConfetti();
 }
