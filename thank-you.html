@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Payment Confirmed — Foreign Affairs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--esp:#0f0c08;--gold:#c9a961;--goldl:#e2c47a;--cream:#f4e4c1}
+html{scroll-behavior:smooth}
+body{background:var(--esp);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;overflow-x:hidden}
+::selection{background:rgba(201,169,97,.3);color:var(--esp)}
+button{font-family:'Jost',sans-serif;cursor:pointer;border:none;outline:none}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
+@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,169,97,.4)}50%{transform:scale(1.06);box-shadow:0 0 0 18px rgba(201,169,97,0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes cffall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+
+.card{
+  background:var(--cream);border-radius:26px;padding:50px 46px;max-width:540px;width:100%;
+  color:var(--esp);box-shadow:0 36px 72px -10px rgba(0,0,0,.55),0 0 0 1px rgba(201,169,97,.13);
+  position:relative;overflow:hidden;animation:fadeUp .65s ease both;
+}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,var(--gold),var(--goldl),var(--gold),transparent);background-size:200% 100%;animation:shimmer 2.5s ease infinite;border-radius:26px 26px 0 0}
+@media(max-width:520px){.card{padding:30px 20px;border-radius:18px}}
+
+.logo-row{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:34px}
+.logo-img{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--gold);object-fit:cover}
+.logo-name{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.22em;color:var(--esp)}
+
+.check-circle{
+  width:90px;height:90px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--goldl));
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 26px;box-shadow:0 10px 28px rgba(201,169,97,.32);
+  animation:pulse 2.8s ease-in-out infinite;
+}
+
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,5vw,40px);font-weight:300;color:var(--esp);text-align:center;margin-bottom:10px}
+.subtitle{font-size:14.5px;color:rgba(15,12,8,.45);text-align:center;line-height:1.7;margin-bottom:28px;max-width:360px;margin-left:auto;margin-right:auto}
+
+.info-block{background:rgba(15,12,8,.05);border:1.5px solid rgba(15,12,8,.08);border-radius:14px;padding:18px;margin-bottom:13px}
+.info-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:13px;padding:5.5px 0;border-bottom:1px solid rgba(15,12,8,.06)}
+.info-row:last-child{border-bottom:none}
+.info-k{color:rgba(15,12,8,.42)}
+.info-v{font-weight:500;text-align:right;color:var(--esp);word-break:break-all}
+
+.badge-paid{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.12);border:1.5px solid rgba(34,197,94,.28);color:#15803d;border-radius:50px;padding:5px 13px;font-size:12.5px;font-weight:600}
+.badge-pending{display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,.12);border:1.5px solid rgba(245,158,11,.28);color:#b45309;border-radius:50px;padding:5px 13px;font-size:12.5px;font-weight:600}
+
+.steps-wrap{list-style:none;margin:6px 0}
+.steps-wrap li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(15,12,8,.06);font-size:13px;color:rgba(15,12,8,.6);line-height:1.5}
+.steps-wrap li:last-child{border-bottom:none}
+.step-num{width:21px;height:21px;border-radius:50%;background:var(--gold);color:var(--esp);font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+.btn{display:block;width:100%;text-align:center;padding:15px;border-radius:13px;font-size:14.5px;font-weight:500;letter-spacing:.04em;cursor:pointer;transition:all .2s;text-decoration:none;border:none;font-family:'Jost',sans-serif;margin-bottom:10px}
+.btn-dark{background:var(--esp);color:var(--cream)}
+.btn-dark:hover{background:#1e190f;transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.2)}
+.btn-outline{background:none;color:var(--esp);border:2px solid rgba(15,12,8,.18)}
+.btn-outline:hover{background:rgba(15,12,8,.05)}
+
+.spinner{width:22px;height:22px;border:2.5px solid rgba(201,169,97,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .85s linear infinite;margin:0 auto 14px}
+
+.state-center{text-align:center;padding:20px 0}
+
+#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:9999;width:100%;height:100%}
+
+#id-mono{font-family:monospace;font-size:10.5px;color:rgba(15,12,8,.28);text-align:center;margin-top:14px}
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="card" id="card">
+  <div class="logo-row">
+    <img src="https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG" class="logo-img" alt="FA"/>
+    <span class="logo-name">FOREIGN AFFAIRS</span>
+  </div>
+
+  <!-- LOADING -->
+  <div id="state-loading" class="state-center">
+    <div class="spinner"></div>
+    <p style="color:rgba(15,12,8,.45);font-size:14px">Verifying your payment…</p>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="state-success" style="display:none">
+    <div class="check-circle">
+      <svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M3 16L14 27.5L37 3" stroke="#0f0c08" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h1>Payment Confirmed!</h1>
+    <p class="subtitle" id="success-sub">You're all set. Welcome to the Foreign Affairs community.</p>
+
+    <div class="info-block">
+      <div class="info-row"><span class="info-k">Status</span><span class="info-v"><span class="badge-paid">● Paid</span></span></div>
+      <div class="info-row"><span class="info-k">Application ID</span><span class="info-v" id="d-id">—</span></div>
+      <div class="info-row"><span class="info-k">Plan</span><span class="info-v" id="d-plan">—</span></div>
+      <div class="info-row"><span class="info-k">Transaction</span><span class="info-v" id="d-tx">—</span></div>
+      <div class="info-row"><span class="info-k">Date</span><span class="info-v" id="d-date">—</span></div>
+    </div>
+
+    <div class="info-block">
+      <div style="font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(15,12,8,.38);margin-bottom:10px">Next Steps</div>
+      <ul class="steps-wrap" id="next-steps"></ul>
+    </div>
+
+    <div style="margin-top:22px">
+      <a href="/" class="btn btn-dark">Return to Portal →</a>
+      <a href="https://calendly.com/foreignaffairs-venue/intro" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="calendly-btn" style="display:none">Schedule Your Onboarding Call</a>
+    </div>
+    <div id="id-mono"></div>
+  </div>
+
+  <!-- ERROR -->
+  <div id="state-error" style="display:none" class="state-center">
+    <div style="font-size:46px;margin-bottom:16px">⚠️</div>
+    <h1 style="font-size:26px;margin-bottom:10px">Something went wrong</h1>
+    <p id="error-msg" style="color:rgba(15,12,8,.45);font-size:14px;line-height:1.7">We couldn't verify your payment. Please contact support or return to the portal.</p>
+    <a href="/" class="btn btn-dark" style="margin-top:24px">Return to Portal</a>
+  </div>
+</div>
+
+<script>
+/* ─── CONFIG ─────────────────────────────── */
+const WORKER_URL = 'https://form-worker.isiraglobal.workers.dev/';
+
+/* ─── CONFETTI ───────────────────────────── */
+function fireConfetti(){
+  const cv=document.getElementById('confetti-canvas');
+  const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth; cv.height=window.innerHeight;
+  const cols=['#c9a961','#f4e4c1','#d4af37','#ffffff','#ffd700','#e2c47a'];
+  const pts=Array.from({length:160},()=>({
+    x:Math.random()*cv.width, y:-20,
+    vx:(Math.random()-.5)*5, vy:Math.random()*5+2,
+    col:cols[Math.floor(Math.random()*cols.length)],
+    sz:Math.random()*10+3, rot:Math.random()*360,
+    rs:(Math.random()-.5)*9, a:1,
+  }));
+  let raf;
+  function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    let alive=false;
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.rs; p.a-=.007;
+      if(p.a>0&&p.y<cv.height){alive=true;ctx.save();ctx.globalAlpha=Math.max(0,p.a);ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.col;ctx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz);ctx.restore();}
+    });
+    if(alive)raf=requestAnimationFrame(loop);else ctx.clearRect(0,0,cv.width,cv.height);
+  }
+  loop();
+}
+
+/* ─── STATE HELPERS ─────────────────────── */
+function showState(name){
+  ['loading','success','error'].forEach(s=>{
+    document.getElementById('state-'+s).style.display=s===name?'block':'none';
+  });
+}
+function setText(id,val){ const e=document.getElementById(id); if(e) e.textContent=val; }
+function setHTML(id,val){ const e=document.getElementById(id); if(e) e.innerHTML=val; }
+
+/* ─── PLAN LABEL ────────────────────────── */
+function getPlanLabel(planParam,txId){
+  if(!planParam){
+    // Guess from URL or transaction
+    if(txId&&txId.includes('199')) return 'Starter — $199';
+    if(txId&&txId.includes('299')) return 'Growth — $299';
+    if(txId&&txId.includes('449')) return 'Premium — $449';
+    return 'Vendor Registration';
+  }
+  const p=decodeURIComponent(planParam);
+  if(p.toLowerCase().includes('starter')||p==='199') return 'Starter — $199';
+  if(p.toLowerCase().includes('growth')||p==='299')  return 'Growth — $299';
+  if(p.toLowerCase().includes('premium')||p==='449') return 'Premium — $449';
+  return p;
+}
+
+/* ─── NOTIFY WORKER ─────────────────────── */
+async function notifyWorker(submissionId,txId,plan,mode,paidAt){
+  if(!WORKER_URL||WORKER_URL.includes('YOUR_SUBDOMAIN')) return;
+  try{
+    await fetch(WORKER_URL+'/payment-confirm',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({submissionId,whopTransactionId:txId,plan,mode,paidAt,paymentStatus:'paid'}),
+    });
+  }catch(e){console.warn('Worker notify failed (non-blocking):',e);}
+}
+
+/* ─── NEXT STEPS ────────────────────────── */
+function buildSteps(mode){
+  const steps=mode==='venue'
+    ? ['Check your email for venue review confirmation.',
+       'Schedule your 15-minute venue assessment call (button above).',
+       'Upload required compliance documents via secure link.',
+       'Receive event assignment & partnership agreement.']
+    : ['Check your email for your payment receipt.',
+       'Upload required documents (business license, insurance) via secure email link.',
+       'Receive event assignment and booth confirmation details.',
+       'Join our vendor WhatsApp group for event-day logistics.'];
+  return steps.map((s,i)=>`<li><div class="step-num">${i+1}</div><span>${s}</span></li>`).join('');
+}
+
+/* ─── MAIN INIT ─────────────────────────── */
+async function init(){
+  const params=new URLSearchParams(window.location.search);
+  const subId   = params.get('id')||'';
+  const mode    = params.get('mode')||'vendor';
+  // Whop appends checkout_id / order_id automatically on redirect
+  const txId    = params.get('checkout_id')||params.get('order_id')||params.get('whop_tx')||('WH-'+Math.random().toString(36).substr(2,8).toUpperCase());
+  const planParam=params.get('plan')||'';
+  const paidAt  = new Date().toISOString();
+
+  if(!subId){
+    showState('error');
+    document.getElementById('error-msg').textContent='No submission ID found. Please return to the portal and try again.';
+    return;
+  }
+
+  const plan=getPlanLabel(planParam,txId);
+
+  // Notify worker (fire & forget — don't block UI)
+  notifyWorker(subId,txId,plan,mode,paidAt);
+
+  // Brief delay for polish
+  await new Promise(r=>setTimeout(r,1100));
+
+  // Populate success
+  setText('d-id',  subId);
+  setText('d-plan', plan);
+  setText('d-tx',   txId);
+  setText('d-date', new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}));
+  document.getElementById('id-mono').textContent=subId;
+
+  const subtitle=mode==='venue'
+    ? 'Your venue application is confirmed. Our team will reach out within 24–48 hours.'
+    : 'Your vendor spot is secured. Check your email for everything you need.';
+  setText('success-sub',subtitle);
+
+  if(mode==='venue'){
+    document.getElementById('calendly-btn').style.display='block';
+  }
+
+  setHTML('next-steps',buildSteps(mode));
+  showState('success');
+  fireConfetti();
+}
+
+init();
+</script>
+</body>
+</html>
