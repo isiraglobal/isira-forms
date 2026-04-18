@@ -8,3 +8,4 @@ ALLOWED_ORIGIN = "https://form.isira.club"
 # Secret variables — set via CLI or Cloudflare dashboard:
 # wrangler secret put APPS_SCRIPT_URL
 # wrangler secret put WHOP_WEBHOOK_SECRET
+
