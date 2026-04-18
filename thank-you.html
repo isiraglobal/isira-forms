@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Confirmed — Foreign Affairs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --espresso: #0f0c08;
+      --gold: #c9a961;
+      --gold-light: #e2c47a;
+      --cream: #f4e4c1;
+    }
+    body {
+      background: var(--espresso);
+      color: var(--cream);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    @keyframes fadeUp   { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes shimmer  { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
+    @keyframes pulse    { 0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,169,97,0.4);} 50%{transform:scale(1.05);box-shadow:0 0 0 20px rgba(201,169,97,0);} }
+    @keyframes spin     { to{transform:rotate(360deg);} }
+    @keyframes confetti-fall { 0%{transform:translateY(-10px) rotate(0deg);opacity:1;} 100%{transform:translateY(100vh) rotate(720deg);opacity:0;} }
+
+    .card {
+      background: var(--cream);
+      border-radius: 28px;
+      padding: 52px 48px;
+      max-width: 560px;
+      width: 100%;
+      color: var(--espresso);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,169,97,0.15);
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.7s ease both;
+    }
+    .card::before {
+      content:'';
+      position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+      background-size:200% 100%;
+      animation: shimmer 2.5s ease infinite;
+    }
+    @media(max-width:520px){ .card { padding:32px 22px; border-radius:20px; } }
+
+    .check-circle {
+      width:96px; height:96px; border-radius:50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      display:flex; align-items:center; justify-content:center;
+      margin:0 auto 28px;
+      font-size:40px;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    .logo-row {
+      display:flex; align-items:center; justify-content:center; gap:12px;
+      margin-bottom:36px;
+    }
+    .logo-img { width:40px; height:40px; border-radius:50%; border:1.5px solid var(--gold); object-fit:cover; }
+    .logo-text { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.2em; color:var(--espresso); }
+
+    h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(30px,5vw,42px); font-weight:300; color:var(--espresso); text-align:center; line-height:1.15; margin-bottom:12px; }
+    .subtitle { font-size:15px; color:rgba(15,12,8,0.5); text-align:center; line-height:1.7; margin-bottom:32px; max-width:380px; margin-left:auto; margin-right:auto; }
+
+    .info-block {
+      background:rgba(15,12,8,0.05); border:1.5px solid rgba(15,12,8,0.08);
+      border-radius:16px; padding:20px; margin-bottom:14px;
+    }
+    .info-row { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; font-size:13.5px; padding:6px 0; border-bottom:1px solid rgba(15,12,8,0.06); }
+    .info-row:last-child { border-bottom:none; }
+    .info-key { color:rgba(15,12,8,0.45); }
+    .info-val { font-weight:500; text-align:right; color:var(--espresso); word-break:break-all; }
+
+    .badge-paid {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(34,197,94,0.12); border:1.5px solid rgba(34,197,94,0.3);
+      color:#15803d; border-radius:50px; padding:6px 14px; font-size:13px; font-weight:600;
+    }
+    .badge-pending {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(245,158,11,0.12); border:1.5px solid rgba(245,158,11,0.3);
+      color:#b45309; border-radius:50px; padding:6px 14px; font-size:13px; font-weight:600;
+    }
+
+    .steps-list { list-style:none; margin-top:8px; }
+    .steps-list li { display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid rgba(15,12,8,0.06); font-size:13.5px; color:rgba(15,12,8,0.65); line-height:1.5; }
+    .steps-list li:last-child { border-bottom:none; }
+    .step-num { width:22px; height:22px; border-radius:50%; background:var(--gold); color:var(--espresso); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+
+    .btn {
+      display:block; width:100%; text-align:center; padding:16px;
+      border-radius:14px; font-size:15px; font-weight:500; letter-spacing:0.04em;
+      cursor:pointer; transition:all 0.2s; text-decoration:none; border:none; font-family:'Jost',sans-serif;
+    }
+    .btn-dark  { background:var(--espresso); color:var(--cream); }
+    .btn-dark:hover { background:#1e190f; transform:translateY(-1px); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+    .btn-outline { background:none; color:var(--espresso); border:2px solid rgba(15,12,8,0.2); }
+    .btn-outline:hover { background:rgba(15,12,8,0.05); }
+
+    .spinner { width:22px; height:22px; border:2.5px solid rgba(201,169,97,0.2); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+
+    .status-section { text-align:center; padding:28px 0; }
+    .status-section p { color:rgba(15,12,8,0.5); font-size:14px; margin-top:8px; }
+
+    /* Confetti */
+    .confetti-piece {
+      position:fixed; width:10px; height:10px;
+      animation:confetti-fall linear forwards;
+      pointer-events:none; z-index:999;
+    }
+
+    #id-display { font-family:monospace; font-size:11px; color:rgba(15,12,8,0.3); text-align:center; margin-top:16px; }
+
+    .whop-tx { font-size:12px; color:rgba(15,12,8,0.4); text-align:center; margin-top:8px; }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:998;width:100%;height:100%;"></canvas>
+
+<div class="card" id="main-card">
+  <div class="logo-row">
+    <img src="https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG" alt="FA" class="logo-img" />
+    <span class="logo-text">FOREIGN AFFAIRS</span>
+  </div>
+
+  <!-- Loading state -->
+  <div id="state-loading" class="status-section">
+    <div class="spinner"></div>
+    <p>Verifying your payment…</p>
+  </div>
+
+  <!-- Success state -->
+  <div id="state-success" style="display:none;">
+    <div class="check-circle">✓</div>
+    <h1>Payment Confirmed!</h1>
+    <p class="subtitle" id="success-subtitle">You're all set. Welcome to the Foreign Affairs community.</p>
+
+    <div class="info-block" id="payment-details" style="margin-bottom:20px;">
+      <div class="info-row"><span class="info-key">Status</span><span class="info-val"><span class="badge-paid">● Paid</span></span></div>
+      <div class="info-row"><span class="info-key">Application ID</span><span class="info-val" id="display-id">—</span></div>
+      <div class="info-row"><span class="info-key">Plan</span><span class="info-val" id="display-plan">—</span></div>
+      <div class="info-row"><span class="info-key">Whop Transaction</span><span class="info-val" id="display-tx">—</span></div>
+      <div class="info-row"><span class="info-key">Date</span><span class="info-val" id="display-date">—</span></div>
+    </div>
+
+    <div class="info-block">
+      <div style="font-size:12px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(15,12,8,0.4);margin-bottom:12px;">Next Steps</div>
+      <ul class="steps-list" id="next-steps">
+        <!-- filled by JS -->
+      </ul>
+    </div>
+
+    <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px;">
+      <a href="/" class="btn btn-dark">Return to Portal →</a>
+      <a href="https://calendly.com/foreignaffairs-venue/intro" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="calendly-btn" style="display:none;">Schedule Your Onboarding Call</a>
+    </div>
+
+    <div id="id-display"></div>
+  </div>
+
+  <!-- Error state -->
+  <div id="state-error" style="display:none;" class="status-section">
+    <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+    <h1 style="font-size:28px;">Something went wrong</h1>
+    <p id="error-msg" style="margin-top:8px;">We couldn't verify your payment. Please contact support.</p>
+    <a href="/" class="btn btn-dark" style="margin-top:24px;display:block;">Return to Portal</a>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────
+const WORKER_URL = 'https://fa-worker.YOUR_SUBDOMAIN.workers.dev';
+const LOGO_URL   = 'https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG';
+
+// ── Parse URL params ─────────────────────────
+const params    = new URLSearchParams(window.location.search);
+const subId     = params.get('id')   || '';
+const mode      = params.get('mode') || 'vendor'; // 'venue' | 'vendor'
+const txId      = params.get('checkout_id') || params.get('order_id') || params.get('whop_tx') || 'whop-' + Math.random().toString(36).substr(2,9).toUpperCase();
+const planParam = params.get('plan') || '';
+
+// ── Confetti ─────────────────────────────────
+function fireConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors  = ['#c9a961','#f4e4c1','#d4af37','#ffffff','#ffd700','#e2c47a'];
+  const particles = Array.from({length:150}, () => ({
+    x:(Math.random()*canvas.width), y:-20,
+    vx:(Math.random()-0.5)*4, vy:Math.random()*4+2,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    size:Math.random()*9+3, rotation:Math.random()*360,
+    rotSpeed:(Math.random()-0.5)*8, alpha:1,
+  }));
+  let raf;
+  const loop = () => {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive=false;
+    particles.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy; p.rotation+=p.rotSpeed; p.alpha-=0.006;
+      if(p.alpha>0 && p.y<canvas.height){ alive=true; ctx.save(); ctx.globalAlpha=Math.max(0,p.alpha); ctx.translate(p.x,p.y); ctx.rotate(p.rotation*Math.PI/180); ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size); ctx.restore(); }
+    });
+    if(alive) raf=requestAnimationFrame(loop);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  };
+  loop();
+}
+
+// ── Show states ───────────────────────────────
+function showState(name) {
+  ['loading','success','error'].forEach(s => {
+    document.getElementById('state-'+s).style.display = s===name ? 'block' : 'none';
+  });
+}
+
+// ── Determine plan label ──────────────────────
+function getPlanLabel(mode, txId) {
+  if(mode==='venue') return 'Venue Partner — Free Review';
+  if(planParam.includes('early') || planParam==='200') return 'Vendor Early Bird — $200';
+  if(planParam.includes('standard') || planParam==='500') return 'Vendor Standard — $500';
+  return 'Vendor Registration';
+}
+
+// ── Notify Worker to update Sheets status ────
+async function notifyWorker(submissionId, txId, plan, mode) {
+  try {
+    const res = await fetch(`${WORKER_URL}/payment-confirm`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ submissionId, whopTransactionId:txId, plan, mode, paidAt:new Date().toISOString(), paymentStatus:'paid' }),
+    });
+    return res.ok;
+  } catch(e) {
+    console.warn('Worker notify failed (non-blocking):', e);
+    return false;
+  }
+}
+
+// ── Build next steps list ─────────────────────
+function buildNextSteps(mode) {
+  const steps = mode==='venue'
+    ? [
+        'Check your email for venue review confirmation.',
+        'Schedule your 15-minute venue assessment call.',
+        'Upload required compliance documents via secure link.',
+        'Receive event assignment & partnership agreement.',
+      ]
+    : [
+        'Check your email for payment receipt.',
+        'Upload required documents (license, insurance) via secure email link.',
+        'Receive event assignment and booth confirmation.',
+        'Join our vendor WhatsApp group for event-day logistics.',
+      ];
+  const ul = document.getElementById('next-steps');
+  ul.innerHTML = steps.map((s,i) => `<li><div class="step-num">${i+1}</div><span>${s}</span></li>`).join('');
+}
+
+// ── Main ──────────────────────────────────────
+async function init() {
+  if(!subId) {
+    showState('error');
+    document.getElementById('error-msg').textContent = 'No submission ID found. Please return to the portal and try again.';
+    return;
+  }
+
+  // Notify worker (fire & forget, don't block UX)
+  const plan = getPlanLabel(mode, txId);
+  notifyWorker(subId, txId, plan, mode);
+
+  // Small delay for polish
+  await new Promise(r => setTimeout(r, 1200));
+
+  // Populate success state
+  document.getElementById('display-id').textContent   = subId;
+  document.getElementById('display-plan').textContent  = plan;
+  document.getElementById('display-tx').textContent    = txId;
+  document.getElementById('display-date').textContent  = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('id-display').textContent    = subId;
+
+  const subtitle = mode==='venue'
+    ? 'Your venue application is confirmed. Our team will reach out within 24–48 hours.'
+    : 'Your vendor spot is secured. Check your email for next steps.';
+  document.getElementById('success-subtitle').textContent = subtitle;
+
+  if(mode==='venue') {
+    document.getElementById('calendly-btn').style.display = 'block';
+  }
+
+  buildNextSteps(mode);
+  showState('success');
+  fireConfetti();
+}
+
+init();
+</script>
+</body>
+</html>

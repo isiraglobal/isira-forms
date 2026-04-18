@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foreign Affairs — Partner & Vendor Portal</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --espresso: #0f0c08;
+      --gold: #c9a961;
+      --gold-light: #e2c47a;
+      --cream: #f4e4c1;
+      --cream-dark: #e8d4a8;
+      --muted: rgba(15,12,8,0.45);
+      --border: rgba(201,169,97,0.2);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--espresso);
+      color: var(--cream);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    ::selection { background: rgba(201,169,97,0.3); color: var(--espresso); }
+    input, select, textarea {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+    }
+    button { font-family: 'Jost', sans-serif; cursor: pointer; border: none; outline: none; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(201,169,97,0.3); border-radius: 3px; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+    @keyframes shimmer  { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+    @keyframes pulse    { 0%,100% { transform:scale(1); } 50% { transform:scale(1.04); } }
+    @keyframes float    { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
+    @keyframes spin     { to { transform:rotate(360deg); } }
+    @keyframes slideIn  { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+    @keyframes slideOut { from { transform:translateX(0); opacity:1; } to { transform:translateX(-100%); opacity:0; } }
+    @keyframes progressGlow { 0%,100%{box-shadow:0 0 10px rgba(201,169,97,0.4);} 50%{box-shadow:0 0 25px rgba(201,169,97,0.8);} }
+
+    .fade-up    { animation: fadeUp  0.7s ease both; }
+    .fade-in    { animation: fadeIn  0.5s ease both; }
+    .float-anim { animation: float   3s ease-in-out infinite; }
+    .spin-anim  { animation: spin    0.9s linear infinite; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--cream);
+      border-radius: 28px;
+      padding: 48px;
+      box-shadow: 0 32px 64px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,169,97,0.15);
+      color: var(--espresso);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    @media (max-width: 600px) { .card { padding: 28px 20px; border-radius: 20px; } }
+
+    /* ── Input ── */
+    .inp {
+      width: 100%;
+      background: rgba(15,12,8,0.06);
+      border: 1.5px solid rgba(15,12,8,0.1);
+      border-radius: 14px;
+      padding: 14px 18px;
+      color: var(--espresso);
+      font-size: 15px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      appearance: none;
+    }
+    .inp:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,169,97,0.12); }
+    .inp::placeholder { color: rgba(15,12,8,0.28); }
+    .inp-label { display:block; font-size:13px; font-weight:500; margin-bottom:8px; color:rgba(15,12,8,0.7); letter-spacing:0.02em; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      background: var(--espresso);
+      color: var(--cream);
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover { background: #1e190f; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-gold {
+      background: var(--gold);
+      color: var(--espresso);
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+    }
+    .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,169,97,0.3); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--espresso);
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 2px solid rgba(15,12,8,0.18);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-ghost:hover { background: rgba(15,12,8,0.06); }
+    .btn-disabled { opacity: 0.45; pointer-events: none; cursor: not-allowed; }
+
+    /* ── Toggle chip ── */
+    .chip {
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(15,12,8,0.1);
+      background: rgba(15,12,8,0.05);
+      color: rgba(15,12,8,0.6);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s;
+      text-align: left;
+    }
+    .chip:hover { background: rgba(15,12,8,0.09); border-color: rgba(201,169,97,0.3); }
+    .chip.active { background: var(--espresso); color: var(--cream); border-color: var(--espresso); }
+
+    /* ── Check-row ── */
+    .check-row {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px; border-radius: 14px;
+      background: rgba(15,12,8,0.05); border: 1.5px solid rgba(15,12,8,0.08);
+      cursor: pointer; transition: background 0.18s, border-color 0.18s;
+    }
+    .check-row:hover { background: rgba(15,12,8,0.09); }
+    .check-box {
+      width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px;
+      border: 1.5px solid rgba(15,12,8,0.25); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s; background: white;
+    }
+    .check-box.checked { background: var(--gold); border-color: var(--gold); }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      height: 6px; background: rgba(201,169,97,0.15); border-radius: 999px;
+      overflow: hidden; position: relative;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+      background-size: 200% 100%;
+      animation: shimmer 2.5s ease infinite, progressGlow 2s ease infinite;
+      transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    /* ── Header ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(15,12,8,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px 12px;
+    }
+    .header-inner { max-width: 760px; margin: 0 auto; }
+    .logo-row { display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px; }
+    .logo-img { width:38px; height:38px; border-radius:50%; border:1.5px solid var(--gold); object-fit:cover; }
+    .logo-text { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.22em; color:var(--gold); }
+    .logo-sub  { font-size:10px; letter-spacing:0.35em; color:rgba(244,228,193,0.45); text-transform:uppercase; margin-left:2px; }
+
+    /* ── Step label ── */
+    .step-label { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.3em; color:var(--gold); font-weight:500; text-transform:uppercase; }
+    .step-title { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:300; color:var(--espresso); line-height:1.15; margin-top:4px; }
+    .step-sub   { font-size:14px; color:rgba(15,12,8,0.45); margin-top:6px; }
+
+    /* ── Review section ── */
+    .review-section { background:rgba(15,12,8,0.06); border:1.5px solid rgba(15,12,8,0.08); border-radius:16px; padding:18px; }
+    .review-title   { font-size:11px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:rgba(15,12,8,0.4); margin-bottom:10px; }
+    .review-row     { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; font-size:13.5px; padding:5px 0; border-bottom:1px solid rgba(15,12,8,0.06); }
+    .review-row:last-child { border-bottom:none; }
+    .review-key { color:rgba(15,12,8,0.5); flex-shrink:0; }
+    .review-val { color:var(--espresso); font-weight:500; text-align:right; }
+
+    /* ── Confetti canvas ── */
+    #confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:999; width:100%; height:100%; }
+
+    /* ── Payment modal ── */
+    .payment-modal-overlay {
+      position: fixed; inset:0; z-index:200;
+      background: rgba(15,12,8,0.85); backdrop-filter:blur(8px);
+      display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .payment-modal {
+      background: var(--cream); border-radius:24px;
+      padding:40px 36px; max-width:480px; width:100%;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+      animation: fadeUp 0.35s ease both;
+      color: var(--espresso);
+    }
+    .whop-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      width:100%; padding:18px 22px; border-radius:16px;
+      border: 1.5px solid rgba(15,12,8,0.12);
+      background: rgba(15,12,8,0.04);
+      color: var(--espresso); font-size:15px; font-weight:500;
+      cursor:pointer; transition:all 0.2s; text-decoration:none;
+      margin-bottom:12px;
+    }
+    .whop-btn:hover { background:var(--espresso); color:var(--cream); border-color:var(--espresso); transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+    .whop-btn .price-tag { font-family:'Cinzel',serif; font-size:18px; font-weight:600; color:var(--gold); }
+    .whop-btn:hover .price-tag { color:var(--gold-light); }
+
+    /* ── Landing ── */
+    .landing {
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      position:relative; overflow:hidden; cursor:pointer;
+      text-align:center; padding:40px 20px;
+    }
+    .landing-bg {
+      position:absolute; inset:0; background-size:cover; background-position:center;
+      transition:transform 8s ease; will-change:transform;
+    }
+    .landing:hover .landing-bg { transform:scale(1.03); }
+    .landing-overlay {
+      position:absolute; inset:0;
+      background:linear-gradient(to top, #0f0c08 0%, rgba(15,12,8,0.62) 50%, rgba(15,12,8,0.4) 100%);
+    }
+    .landing-content { position:relative; z-index:2; max-width:680px; }
+    .landing-eyebrow { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.45em; color:var(--gold); text-transform:uppercase; margin-bottom:20px; }
+    .landing-title {
+      font-family:'Cormorant Garamond',serif; font-size:clamp(52px,9vw,96px);
+      font-weight:300; line-height:0.95; color:var(--cream);
+      letter-spacing:-0.02em; margin-bottom:22px;
+    }
+    .landing-sub { font-size:17px; color:rgba(244,228,193,0.6); font-weight:300; line-height:1.6; margin-bottom:48px; }
+    .mode-cards { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:560px; width:100%; }
+    @media(max-width:520px){ .mode-cards { grid-template-columns:1fr; } }
+    .mode-card {
+      background:rgba(244,228,193,0.07); border:1.5px solid rgba(201,169,97,0.2);
+      border-radius:20px; padding:28px 24px; cursor:pointer; transition:all 0.25s;
+      text-align:left; position:relative; overflow:hidden;
+    }
+    .mode-card::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(201,169,97,0.1),transparent); opacity:0; transition:opacity 0.25s; }
+    .mode-card:hover { border-color:rgba(201,169,97,0.6); transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3); }
+    .mode-card:hover::after { opacity:1; }
+    .mode-card-icon { font-size:28px; margin-bottom:14px; }
+    .mode-card-title { font-family:'Cinzel',serif; font-size:14px; letter-spacing:0.18em; color:var(--gold); margin-bottom:8px; }
+    .mode-card-desc  { font-size:13px; color:rgba(244,228,193,0.5); line-height:1.6; }
+
+    /* ── Benefit grid ── */
+    .benefit-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media(max-width:480px){ .benefit-grid { grid-template-columns:1fr; } }
+    .benefit-card {
+      padding:18px; border-radius:16px;
+      background:rgba(15,12,8,0.06); border:1.5px solid rgba(15,12,8,0.08);
+      transition:border-color 0.2s;
+    }
+    .benefit-card:hover { border-color:rgba(201,169,97,0.25); }
+    .benefit-num { font-family:'Cinzel',serif; font-size:11px; color:var(--gold); letter-spacing:0.2em; margin-bottom:6px; }
+    .benefit-t   { font-size:14px; font-weight:500; color:var(--espresso); margin-bottom:4px; }
+    .benefit-d   { font-size:12.5px; color:rgba(15,12,8,0.5); line-height:1.55; }
+
+    /* ── Nav Buttons row ── */
+    .nav-row { display:flex; gap:12px; margin-top:32px; }
+    .nav-row .spacer { flex:1; }
+
+    /* ── grid 2 ── */
+    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media(max-width:480px){ .g2 { grid-template-columns:1fr; } }
+
+    /* ── Confirmation ── */
+    .confirm-circle {
+      width:88px; height:88px; border-radius:50%;
+      background:var(--gold); color:var(--espresso);
+      font-size:36px; display:flex; align-items:center; justify-content:center;
+      margin:0 auto 28px; box-shadow:0 12px 32px rgba(201,169,97,0.35);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* ── Horizontal scroller for dates ── */
+    .date-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .date-tag {
+      display:inline-flex; align-items:center; gap:8px;
+      background:var(--espresso); color:var(--cream);
+      border-radius:50px; padding:7px 14px; font-size:13px;
+    }
+    .date-tag button { background:none; color:rgba(244,228,193,0.6); font-size:16px; line-height:1; cursor:pointer; transition:color 0.15s; padding:0; }
+    .date-tag button:hover { color:var(--gold); }
+
+    /* ── Doc item ── */
+    .doc-item {
+      padding:14px 16px; border-radius:14px; border:1.5px solid rgba(15,12,8,0.08);
+      background:rgba(15,12,8,0.04); cursor:pointer; transition:all 0.18s;
+      display:flex; align-items:flex-start; gap:12px;
+    }
+    .doc-item.selected { background:var(--espresso); border-color:var(--espresso); }
+    .doc-item-check { width:20px; height:20px; flex-shrink:0; border-radius:6px; display:flex; align-items:center; justify-content:center; border:1.5px solid rgba(15,12,8,0.2); background:white; margin-top:2px; transition:all 0.18s; }
+    .doc-item.selected .doc-item-check { background:var(--gold); border-color:var(--gold); }
+    .doc-item-title { font-size:14px; font-weight:500; transition:color 0.18s; }
+    .doc-item.selected .doc-item-title { color:var(--cream); }
+    .doc-item-desc  { font-size:12.5px; color:rgba(15,12,8,0.5); margin-top:2px; line-height:1.45; transition:color 0.18s; }
+    .doc-item.selected .doc-item-desc { color:rgba(244,228,193,0.6); }
+    .badge { font-size:10.5px; padding:2px 8px; border-radius:20px; font-weight:500; }
+    .badge-req { background:rgba(15,12,8,0.09); color:rgba(15,12,8,0.5); }
+    .badge-req-sel { background:rgba(201,169,97,0.2); color:var(--gold); }
+
+    /* ── Event card ── */
+    .event-card {
+      padding:16px; border-radius:14px; border:1.5px solid rgba(15,12,8,0.08);
+      background:rgba(15,12,8,0.04); cursor:pointer; transition:all 0.18s;
+    }
+    .event-card.selected { background:var(--espresso); border-color:var(--espresso); color:var(--cream); }
+
+    /* scrollable inner */
+    .scroll-inner { max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:4px; }
+
+    /* ── Terms box ── */
+    .terms-box { background:rgba(15,12,8,0.05); border:1.5px solid rgba(15,12,8,0.08); border-radius:16px; padding:22px; max-height:320px; overflow-y:auto; font-size:13.5px; line-height:1.8; color:rgba(15,12,8,0.75); }
+    .terms-box h4 { font-weight:600; color:var(--espresso); margin-bottom:6px; font-size:15px; }
+    .terms-box p { margin-bottom:12px; }
+
+    /* ── Mode switcher pills ── */
+    .mode-pills { display:flex; gap:0; background:rgba(15,12,8,0.07); border-radius:14px; padding:4px; }
+    .mode-pill  { flex:1; padding:10px; border-radius:10px; text-align:center; font-size:13.5px; font-weight:500; cursor:pointer; transition:all 0.2s; color:rgba(15,12,8,0.5); }
+    .mode-pill.active { background:var(--espresso); color:var(--cream); box-shadow:0 4px 12px rgba(0,0,0,0.18); }
+
+    /* ── Info banner ── */
+    .info-banner { background:rgba(201,169,97,0.1); border:1.5px dashed rgba(201,169,97,0.3); border-radius:14px; padding:14px 16px; font-size:13px; color:rgba(15,12,8,0.7); }
+    .info-banner strong { color:var(--espresso); }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div id="root"></div>
+
+<script type="text/babel">
+// ─────────────────────────────────────────────
+// CONFIG — swap these with your real values
+// ─────────────────────────────────────────────
+const CONFIG = {
+  workerUrl: 'https://fa-worker.YOUR_SUBDOMAIN.workers.dev', // Your Cloudflare Worker URL
+  whopLinks: {
+    venue:         'https://whop.com/checkout/plan_6rFkbfVEg8FmN',
+    vendorEarly:   'https://whop.com/checkout/plan_5WVL8YWVilo0N',
+    vendorStandard:'https://whop.com/checkout/plan_GJpm1F4tEuUS8',
+  },
+  logoUrl: 'https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG',
+  baseUrl: 'https://form.isira.club',
+};
+
+// ─────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────
+const UPCOMING_EVENTS = [
+  { id:'nyc-0426', name:'NYC Spring Market',        date:'2026-04-26', location:'Brooklyn Warehouse',       price:500 },
+  { id:'la-0503',  name:'LA Artisan Fair',           date:'2026-05-03', location:'Downtown Arts District',   price:500 },
+  { id:'chi-0510', name:'Chicago Food & Art Fest',   date:'2026-05-10', location:'West Loop Gallery',        price:200 },
+  { id:'mia-0517', name:'Miami Cultural Pop-up',     date:'2026-05-17', location:'Wynwood Lot',              price:200 },
+  { id:'atl-0524', name:"Atlanta Maker's Market",    date:'2026-05-24', location:'East Atlanta Village',     price:200 },
+];
+const BOOTH_SIZES = [
+  { value:'standard', label:'Standard 10×10 ft', sub:'Included',   price:0   },
+  { value:'double',   label:'Double 10×20 ft',   sub:'+$100',       price:100 },
+  { value:'corner',   label:'Corner Premium',    sub:'+$50',        price:50  },
+];
+const EVENT_TIMES = ['Morning (8am–12pm)','Afternoon (12pm–5pm)','Evening (5pm–10pm)','Late Night (10pm–2am)','Weekend All Day','Flexible'];
+const VENUE_TYPES = ['Warehouse/Industrial','Retail Space','Restaurant/Bar','Art Gallery','Outdoor Lot','Co-working Space','Hotel/Event Space','Rooftop','Other'];
+const CATEGORIES  = ['Food & Beverage','Art & Handmade Goods','Vintage & Thrift','Jewelry & Accessories','Home & Lifestyle','Health & Wellness','Tech & Innovation','Cultural & Educational','Other'];
+const DOCS = [
+  { key:'certificateOfInsurance', label:'Certificate of Insurance (COI)',       desc:'General Liability $1M–$2M, Foreign Affairs LLC named additional insured', required:true  },
+  { key:'occupancyPermit',        label:'Certificate of Occupancy',             desc:'Proof of zoning for public assembly/events',                              required:true  },
+  { key:'fireMarshalPermit',      label:'Fire Marshal Permit',                  desc:'Max occupancy and egress compliance',                                     required:true  },
+  { key:'adaCompliance',          label:'ADA Compliance Documentation',         desc:'Accessibility features verification',                                     required:true  },
+  { key:'businessLicense',        label:'Current Business License',             desc:'City/state business operation license',                                   required:true  },
+  { key:'floorPlan',              label:'Emergency Exit / Floor Plan',          desc:'Marked evacuation routes',                                                required:true  },
+  { key:'liquorLicense',          label:'Liquor License (if applicable)',       desc:'State-specific alcohol service permit',                                   required:false },
+  { key:'foodServiceLicense',     label:'Food Service License (if applicable)', desc:'If kitchen/food prep on-site',                                            required:false },
+  { key:'sellersPermit',          label:"Seller's Permit",                      desc:'State tax collection authorization',                                      required:false },
+  { key:'noisePermit',            label:'Noise/Orchestra Permit',               desc:'For music/amplified sound events',                                        required:false },
+];
+
+// ─────────────────────────────────────────────
+// CONFETTI
+// ─────────────────────────────────────────────
+function fireConfetti(originX, originY) {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors  = ['#c9a961','#f4e4c1','#d4af37','#ffffff','#ffd700'];
+  const particles = Array.from({length:120}, () => ({
+    x: originX || canvas.width/2, y: originY || canvas.height/3,
+    vx:(Math.random()-0.5)*22, vy:(Math.random()-0.5)*18-6,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    size:Math.random()*9+3, rotation:Math.random()*360,
+    rotSpeed:(Math.random()-0.5)*12, alpha:1,
+  }));
+  let raf;
+  const loop = () => {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.32; p.vx*=0.985; p.rotation+=p.rotSpeed; p.alpha-=0.012;
+      if(p.alpha>0){ alive=true; ctx.save(); ctx.globalAlpha=Math.max(0,p.alpha); ctx.translate(p.x,p.y); ctx.rotate(p.rotation*Math.PI/180); ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size); ctx.restore(); }
+    });
+    if(alive) raf=requestAnimationFrame(loop);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  };
+  cancelAnimationFrame(raf); loop();
+}
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+const fmt = d => { if(!d) return ''; const [y,m,day]=d.split('-'); return `${m}/${day}/${y}`; };
+const toggle = (arr,v) => arr.includes(v) ? arr.filter(x=>x!==v) : [...arr,v];
+const genId  = prefix => `${prefix}-${Math.random().toString(36).substr(2,9).toUpperCase()}`;
+
+// Save submission to Worker (fire & forget, never blocks UX)
+async function sendToWorker(payload) {
+  try {
+    await fetch(`${CONFIG.workerUrl}/submit`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+    });
+  } catch(e) { console.warn('Worker unreachable – data logged locally only', e); }
+}
+
+// ─────────────────────────────────────────────
+// PAYMENT MODAL
+// ─────────────────────────────────────────────
+function PaymentModal({ mode, vendorPrice, submissionId, onClose }) {
+  const isVenue  = mode === 'venue';
+  const encodedId = encodeURIComponent(submissionId);
+  const redirect  = `${CONFIG.baseUrl}/thank-you.html?id=${encodedId}&mode=${mode}`;
+
+  const plans = isVenue
+    ? [{ label:'Venue Partner Application', sub:'Free review – no charge', price:'Free', link:`${CONFIG.whopLinks.venue}?redirect=${encodeURIComponent(redirect)}` }]
+    : [
+        { label:'Early Bird Rate',  sub:'Best value · Limited spots', price:'$200', link:`${CONFIG.whopLinks.vendorEarly}?redirect=${encodeURIComponent(redirect)}` },
+        { label:'Standard Rate',    sub:'Confirmed event slot',       price:'$500', link:`${CONFIG.whopLinks.vendorStandard}?redirect=${encodeURIComponent(redirect)}` },
+        ...(vendorPrice===200
+          ? []
+          : [{ label:'Event-Specific Rate', sub:`Based on selected events`, price:`$${vendorPrice}`, link:`${CONFIG.whopLinks.vendorStandard}?redirect=${encodeURIComponent(redirect)}&amount=${vendorPrice}` }]
+        ),
+      ];
+
+  return (
+    <div className="payment-modal-overlay" onClick={e => e.target===e.currentTarget && onClose()}>
+      <div className="payment-modal">
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:24}}>
+          <div>
+            <div style={{fontFamily:"'Cinzel',serif",fontSize:11,letterSpacing:'0.3em',color:'var(--gold)',textTransform:'uppercase',marginBottom:4}}>
+              {isVenue ? 'Venue Partnership' : 'Vendor Registration'}
+            </div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:300,color:'var(--espresso)'}}>
+              Choose Your Plan
+            </div>
+          </div>
+          <button onClick={onClose} style={{background:'rgba(15,12,8,0.08)',border:'none',width:36,height:36,borderRadius:'50%',cursor:'pointer',fontSize:18,color:'rgba(15,12,8,0.5)',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
+        </div>
+
+        <p style={{fontSize:13,color:'rgba(15,12,8,0.5)',marginBottom:20,lineHeight:1.6}}>
+          After selecting a plan, you'll be redirected to secure checkout via Whop. Once payment is confirmed you'll return here automatically.
+        </p>
+
+        {plans.map((plan,i) => (
+          <a key={i} href={plan.link} target="_blank" rel="noopener noreferrer" className="whop-btn">
+            <div>
+              <div style={{fontWeight:600,fontSize:15,marginBottom:3}}>{plan.label}</div>
+              <div style={{fontSize:12,color:'rgba(15,12,8,0.45)'}}>{plan.sub}</div>
+            </div>
+            <div className="price-tag">{plan.price}</div>
+          </a>
+        ))}
+
+        <p style={{fontSize:11,color:'rgba(15,12,8,0.35)',textAlign:'center',marginTop:12}}>
+          Secured by Whop · All payments encrypted
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// HEADER
+// ─────────────────────────────────────────────
+function Header({ progress, mode }) {
+  return (
+    <header className="header">
+      <div className="header-inner">
+        <div className="logo-row">
+          <div style={{display:'flex',alignItems:'center',gap:12}}>
+            <img src={CONFIG.logoUrl} alt="FA" className="logo-img" />
+            <div>
+              <div className="logo-text">FOREIGN AFFAIRS</div>
+              <div className="logo-sub">{mode==='venue' ? 'Venue Partnership' : 'Vendor Registration'}</div>
+            </div>
+          </div>
+          <div style={{textAlign:'right'}}>
+            <div style={{fontSize:10,color:'rgba(244,228,193,0.35)',letterSpacing:'0.2em',textTransform:'uppercase'}}>Progress</div>
+            <div style={{fontFamily:"'Cinzel',serif",fontSize:15,color:'var(--gold)',fontWeight:600}}>{Math.round(progress)}%</div>
+          </div>
+        </div>
+        <div className="progress-wrap">
+          <div className="progress-fill" style={{width:`${progress}%`}} />
+        </div>
+      </div>
+    </header>
+  );
+}
+
+// ─────────────────────────────────────────────
+// LANDING PAGE
+// ─────────────────────────────────────────────
+function Landing({ onSelect }) {
+  return (
+    <div className="landing" style={{minHeight:'100vh'}}>
+      <div className="landing-bg" style={{backgroundImage:"url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1600')"}} />
+      <div className="landing-overlay" />
+      <div className="landing-content fade-up">
+        <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:14,marginBottom:36}}>
+          <img src={CONFIG.logoUrl} alt="FA" style={{width:52,height:52,borderRadius:'50%',border:'2px solid var(--gold)',objectFit:'cover'}} />
+        </div>
+        <div className="landing-eyebrow">Foreign Affairs · Partner Portal</div>
+        <h1 className="landing-title">
+          Join the<br/>Movement
+        </h1>
+        <p className="landing-sub">
+          A curated vendor event series transforming spaces<br/>into thriving cultural destinations.
+        </p>
+        <div className="mode-cards" style={{margin:'0 auto'}}>
+          <div className="mode-card" onClick={() => onSelect('venue')}>
+            <div className="mode-card-icon">🏛</div>
+            <div className="mode-card-title">Venue Partner</div>
+            <div className="mode-card-desc">List your space and host our professional vendor markets. Free to apply.</div>
+          </div>
+          <div className="mode-card" onClick={() => onSelect('vendor')}>
+            <div className="mode-card-icon">🛍</div>
+            <div className="mode-card-title">Vendor</div>
+            <div className="mode-card-desc">Register your business and sell at our curated events across the country.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// NAV BUTTONS
+// ─────────────────────────────────────────────
+function NavRow({ onBack, onNext, nextLabel='Continue →', nextGold=false, disabled=false }) {
+  return (
+    <div className="nav-row">
+      <button className="btn-ghost" onClick={onBack}>← Back</button>
+      <div className="spacer" />
+      <button
+        className={`${nextGold?'btn-gold':'btn-primary'} ${disabled?'btn-disabled':''}`}
+        onClick={onNext}
+        disabled={disabled}
+      >
+        {nextLabel}
+      </button>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════
+// VENUE ONBOARDING FLOW
+// ═══════════════════════════════════════════
+const VENUE_STEPS = ['Welcome','Venue Basics','Space Specs','Legal Docs','Availability','Contact','Review','Confirmation'];
+
+const venueInit = {
+  venueName:'', address:'', city:'', state:'', zip:'', venueType:'', venueTypeOther:'',
+  squareFootage:'', capacity:'', indoorOutdoor:'', parkingSpaces:'',
+  powerAccess:false, loadingDock:false,
+  hasStage:false, hasDanceFloor:false, hasDJBooth:false, hasEntertainment:false, hasSoundSystem:false, hasLighting:false,
+  documents:{ certificateOfInsurance:false, occupancyPermit:false, fireMarshalPermit:false, adaCompliance:false, liquorLicense:false, businessLicense:false, sellersPermit:false, noisePermit:false, foodServiceLicense:false, floorPlan:false },
+  availableDates:[], preferredEventTimes:[], preferredEventType:'',
+  businessSocialMedia:'', personalSocialMedia:'',
+  firstName:'', lastName:'', email:'', phone:'', jobPosition:'', isDecisionMaker:false, businessName:'',
+  notes:'',
+};
+
+function VenueFlow({ onBack }) {
+  const [step, setStep]     = React.useState(0);
+  const [d, setD]           = React.useState(venueInit);
+  const [showPay, setShowPay] = React.useState(false);
+  const [subId]             = React.useState(() => genId('FA-VENUE'));
+
+  const progress = (step / (VENUE_STEPS.length-1)) * 100;
+  const upd = (k,v) => setD(p => ({...p,[k]:v}));
+  const updDoc = k => setD(p => ({...p,documents:{...p.documents,[k]:!p.documents[k]}}));
+
+  const next = () => {
+    if(step < VENUE_STEPS.length-1) { window.scrollTo(0,0); setStep(s=>s+1); fireConfetti(window.innerWidth/2, 60); }
+  };
+  const back = () => {
+    if(step===0) onBack(); else { window.scrollTo(0,0); setStep(s=>s-1); }
+  };
+
+  const handleSubmit = async () => {
+    const payload = { type:'venue', submissionId:subId, submittedAt:new Date().toISOString(), paymentStatus:'pending', ...d, documentsChecked: Object.entries(d.documents).filter(([,v])=>v).map(([k])=>k).join(', ') };
+    await sendToWorker(payload);
+    setShowPay(true);
+  };
+
+  const amenities = [
+    {k:'hasStage',label:'Stage'},{k:'hasDanceFloor',label:'Dance Floor'},{k:'hasDJBooth',label:'DJ Booth'},
+    {k:'hasEntertainment',label:'Entertainment License'},{k:'hasSoundSystem',label:'Sound System'},{k:'hasLighting',label:'Lighting System'},
+  ];
+
+  return (
+    <>
+      <Header progress={progress} mode="venue" />
+      {showPay && (
+        <PaymentModal mode="venue" vendorPrice={0} submissionId={subId} onClose={()=>setShowPay(false)} />
+      )}
+      <div style={{paddingTop:100,paddingBottom:48,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'100px 16px 48px'}}>
+        <div style={{width:'100%',maxWidth:680}}>
+          <div className="card fade-in">
+
+            {/* STEP 0: Welcome */}
+            {step===0 && (
+              <div>
+                <div style={{textAlign:'center',marginBottom:32}}>
+                  <div className="step-label" style={{marginBottom:8}}>Venue Partnership</div>
+                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(32px,5vw,46px)',fontWeight:300,color:'var(--espresso)',lineHeight:1.1,marginBottom:12}}>Partner with Foreign Affairs</div>
+                  <p style={{fontSize:15,color:'rgba(15,12,8,0.5)',maxWidth:460,margin:'0 auto',lineHeight:1.7}}>Transform your space into a vibrant cultural destination with our professional vendor event series.</p>
+                </div>
+                <div className="benefit-grid" style={{marginBottom:32}}>
+                  {[
+                    {t:'High Volume Traffic',d:'100+ engaged attendees per event, creating energy in your space.'},
+                    {t:'Digital Amplification',d:'High-engagement content, viral social moments, increased reputation.'},
+                    {t:'Business Growth',d:'New customers discovering your venue, driving future bookings.'},
+                    {t:'Community Value',d:'Intentional use of space supporting local vendors and culture.'},
+                    {t:'Professional Production',d:'Full-service management — marketing, setup, ops, breakdown.'},
+                    {t:'Free Content Creation',d:'Professional photography & video of your space provided to you.'},
+                  ].map((b,i) => (
+                    <div key={i} className="benefit-card" style={{animationDelay:`${i*0.08}s`}}>
+                      <div className="benefit-num">0{i+1}</div>
+                      <div className="benefit-t">{b.t}</div>
+                      <div className="benefit-d">{b.d}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:'flex',gap:12,justifyContent:'center'}}>
+                  <button className="btn-ghost" onClick={back}>← Back</button>
+                  <button className="btn-primary" onClick={next} style={{padding:'16px 40px'}}>Start Application →</button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 1: Venue Basics */}
+            {step===1 && (
+              <div>
+                <div className="step-label">Step 01</div>
+                <div className="step-title">Venue Basics</div>
+                <div className="step-sub">Tell us about your space</div>
+                <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
+                  <div><label className="inp-label">Venue Name</label><input className="inp" value={d.venueName} onChange={e=>upd('venueName',e.target.value)} placeholder="e.g. The Market Hall" /></div>
+                  <div>
+                    <label className="inp-label">Venue Type</label>
+                    <select className="inp" value={d.venueType} onChange={e=>upd('venueType',e.target.value)}>
+                      <option value="">Select type…</option>
+                      {VENUE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  {d.venueType==='Other' && <div><label className="inp-label">Please specify</label><input className="inp" value={d.venueTypeOther} onChange={e=>upd('venueTypeOther',e.target.value)} placeholder="Describe your venue type" /></div>}
+                  <div className="g2">
+                    <div><label className="inp-label">City</label><input className="inp" value={d.city} onChange={e=>upd('city',e.target.value)} placeholder="New York" /></div>
+                    <div><label className="inp-label">State</label><input className="inp" value={d.state} onChange={e=>upd('state',e.target.value)} placeholder="NY" /></div>
+                  </div>
+                  <div><label className="inp-label">Street Address</label><input className="inp" value={d.address} onChange={e=>upd('address',e.target.value)} placeholder="123 Main Street" /></div>
+                  <div><label className="inp-label">ZIP Code</label><input className="inp" value={d.zip} onChange={e=>upd('zip',e.target.value)} placeholder="10001" /></div>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 2: Space Specs */}
+            {step===2 && (
+              <div>
+                <div className="step-label">Step 02</div>
+                <div className="step-title">Space Specifications</div>
+                <div className="step-sub">Help us match the right event to your space</div>
+                <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
+                  <div className="g2">
+                    <div><label className="inp-label">Square Footage</label><input className="inp" type="number" value={d.squareFootage} onChange={e=>upd('squareFootage',e.target.value)} placeholder="5000" /></div>
+                    <div><label className="inp-label">Max Capacity</label><input className="inp" type="number" value={d.capacity} onChange={e=>upd('capacity',e.target.value)} placeholder="200" /></div>
+                  </div>
+                  <div>
+                    <label className="inp-label">Space Type</label>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                      {['Indoor Only','Outdoor Only','Indoor/Outdoor','Rooftop'].map(t=>(
+                        <button key={t} className={`chip ${d.indoorOutdoor===t?'active':''}`} onClick={()=>upd('indoorOutdoor',t)}>{t}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div><label className="inp-label">Parking Spaces Available</label><input className="inp" type="number" value={d.parkingSpaces} onChange={e=>upd('parkingSpaces',e.target.value)} placeholder="50" /></div>
+                  <label className="check-row" onClick={()=>upd('powerAccess',!d.powerAccess)}>
+                    <div className={`check-box ${d.powerAccess?'checked':''}`}>{d.powerAccess&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:500}}>220V Power Access</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>Suitable for food vendors and lighting</div></div>
+                  </label>
+                  <label className="check-row" onClick={()=>upd('loadingDock',!d.loadingDock)}>
+                    <div className={`check-box ${d.loadingDock?'checked':''}`}>{d.loadingDock&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:500}}>Loading Dock / Access</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>Easy load-in for vendor setups</div></div>
+                  </label>
+                  <div>
+                    <label className="inp-label" style={{marginBottom:12}}>Venue Amenities</label>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                      {amenities.map(a=>(
+                        <label key={a.k} className="check-row" style={{padding:'12px 14px'}} onClick={()=>upd(a.k,!d[a.k])}>
+                          <div className={`check-box ${d[a.k]?'checked':''}`} style={{width:18,height:18}}>{d[a.k]&&<span style={{color:'var(--espresso)',fontSize:11,fontWeight:700}}>✓</span>}</div>
+                          <span style={{fontSize:13.5,fontWeight:500}}>{a.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 3: Legal Docs */}
+            {step===3 && (
+              <div>
+                <div className="step-label">Step 03</div>
+                <div className="step-title">Legal & Compliance</div>
+                <div className="step-sub">Required documentation for event hosting</div>
+                <div style={{marginTop:24}} className="scroll-inner">
+                  {DOCS.map(doc=>{
+                    const sel = d.documents[doc.key];
+                    return (
+                      <div key={doc.key} className={`doc-item ${sel?'selected':''}`} onClick={()=>updDoc(doc.key)}>
+                        <div className="doc-item-check">{sel&&<span style={{color:'var(--espresso)',fontSize:11,fontWeight:700}}>✓</span>}</div>
+                        <div style={{flex:1}}>
+                          <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                            <span className="doc-item-title">{doc.label}</span>
+                            {doc.required && <span className={`badge ${sel?'badge-req-sel':'badge-req'}`}>Required</span>}
+                          </div>
+                          <div className="doc-item-desc">{doc.desc}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="info-banner" style={{marginTop:16}}>
+                  <strong>Document Upload:</strong> You'll receive an email link to upload scanned copies after initial review. Physical verification during site visit.
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 4: Availability */}
+            {step===4 && (
+              <div>
+                <div className="step-label">Step 04</div>
+                <div className="step-title">Availability & Presence</div>
+                <div className="step-sub">Scheduling and social presence</div>
+                <div style={{marginTop:24,display:'flex',flexDirection:'column',gap:20}}>
+                  <div style={{background:'rgba(15,12,8,0.05)',borderRadius:16,padding:20,border:'1.5px solid rgba(15,12,8,0.08)'}}>
+                    <label className="inp-label">Preferred Event Dates</label>
+                    <input type="date" className="inp" onChange={e=>{if(e.target.value){upd('availableDates',[...d.availableDates,e.target.value]);e.target.value='';}}} />
+                    {d.availableDates.length>0 && (
+                      <div className="date-tags">
+                        {d.availableDates.map((dt,i)=>(
+                          <span key={i} className="date-tag">{fmt(dt)}<button onClick={()=>upd('availableDates',d.availableDates.filter((_,j)=>j!==i))}>×</button></span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="inp-label">Preferred Event Times</label>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                      {EVENT_TIMES.map(t=>(
+                        <button key={t} className={`chip ${d.preferredEventTimes.includes(t)?'active':''}`} onClick={()=>upd('preferredEventTimes',toggle(d.preferredEventTimes,t))} style={{display:'flex',alignItems:'center',gap:8}}>
+                          <span style={{width:14,height:14,borderRadius:4,border:`1.5px solid ${d.preferredEventTimes.includes(t)?'var(--gold)':'rgba(15,12,8,0.25)'}`,background:d.preferredEventTimes.includes(t)?'var(--gold)':'white',display:'inline-flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                            {d.preferredEventTimes.includes(t)&&<span style={{fontSize:9,color:'var(--espresso)',fontWeight:700}}>✓</span>}
+                          </span>
+                          <span style={{fontSize:13}}>{t}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div><label className="inp-label">Preferred Event Types</label><textarea className="inp" style={{height:90,resize:'none'}} value={d.preferredEventType} onChange={e=>upd('preferredEventType',e.target.value)} placeholder="e.g. art markets, food festivals, networking events" /></div>
+                  <div className="g2">
+                    <div><label className="inp-label">Business Social Media</label><input className="inp" value={d.businessSocialMedia} onChange={e=>upd('businessSocialMedia',e.target.value)} placeholder="@venuehandle" /></div>
+                    <div><label className="inp-label">Personal Social Media</label><input className="inp" value={d.personalSocialMedia} onChange={e=>upd('personalSocialMedia',e.target.value)} placeholder="@yourhandle" /></div>
+                  </div>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 5: Contact */}
+            {step===5 && (
+              <div>
+                <div className="step-label">Step 05</div>
+                <div className="step-title">Contact Information</div>
+                <div className="step-sub">Primary contact for venue partnership</div>
+                <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
+                  <div className="g2">
+                    <div><label className="inp-label">First Name</label><input className="inp" value={d.firstName} onChange={e=>upd('firstName',e.target.value)} placeholder="Jane" /></div>
+                    <div><label className="inp-label">Last Name</label><input className="inp" value={d.lastName} onChange={e=>upd('lastName',e.target.value)} placeholder="Smith" /></div>
+                  </div>
+                  <div><label className="inp-label">Job Position</label><input className="inp" value={d.jobPosition} onChange={e=>upd('jobPosition',e.target.value)} placeholder="General Manager, Owner, Events Coordinator" /></div>
+                  <div><label className="inp-label">Email Address</label><input className="inp" type="email" value={d.email} onChange={e=>upd('email',e.target.value)} placeholder="jane@venue.com" /></div>
+                  <div><label className="inp-label">Phone Number</label><input className="inp" type="tel" value={d.phone} onChange={e=>upd('phone',e.target.value)} placeholder="(555) 123-4567" /></div>
+                  <div><label className="inp-label">Business Legal Name</label><input className="inp" value={d.businessName} onChange={e=>upd('businessName',e.target.value)} placeholder="Smith Venue Properties LLC" /></div>
+                  <label className="check-row" onClick={()=>upd('isDecisionMaker',!d.isDecisionMaker)}>
+                    <div className={`check-box ${d.isDecisionMaker?'checked':''}`}>{d.isDecisionMaker&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:500}}>Primary Decision Maker</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>I have authority to approve events at this venue</div></div>
+                  </label>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 6: Review */}
+            {step===6 && (
+              <div>
+                <div className="step-label">Step 06</div>
+                <div className="step-title">Review Application</div>
+                <div className="step-sub">Confirm your details before submitting</div>
+                <div style={{marginTop:24,display:'flex',flexDirection:'column',gap:12}} className="scroll-inner">
+                  {[
+                    {title:'Venue Details', rows:[['Name',d.venueName],['Type',d.venueType==='Other'?d.venueTypeOther:d.venueType],['Address',`${d.address}, ${d.city}, ${d.state} ${d.zip}`]]},
+                    {title:'Specifications', rows:[['Sq Ft',d.squareFootage],['Capacity',d.capacity],['Space',d.indoorOutdoor],['Parking',d.parkingSpaces],['Amenities',[d.hasStage&&'Stage',d.hasDanceFloor&&'Dance Floor',d.hasDJBooth&&'DJ Booth',d.hasSoundSystem&&'Sound',d.hasLighting&&'Lighting',d.hasEntertainment&&'Entertainment License'].filter(Boolean).join(', ')||'None']]},
+                    {title:'Legal Documents', rows:[['Confirmed',Object.entries(d.documents).filter(([,v])=>v).map(([k])=>k.replace(/([A-Z])/g,' $1').trim()).join(', ')||'None selected']]},
+                    {title:'Availability', rows:[['Dates',d.availableDates.map(fmt).join(', ')||'None'],['Times',d.preferredEventTimes.join(', ')||'None'],['Event Types',d.preferredEventType||'—']]},
+                    {title:'Social Media', rows:[['Business',d.businessSocialMedia||'—'],['Personal',d.personalSocialMedia||'—']]},
+                    {title:'Contact', rows:[['Name',`${d.firstName} ${d.lastName}`],['Position',d.jobPosition],['Email',d.email],['Phone',d.phone],['Decision Maker',d.isDecisionMaker?'Yes':'No']]},
+                  ].map(sec=>(
+                    <div key={sec.title} className="review-section">
+                      <div className="review-title">{sec.title}</div>
+                      {sec.rows.map(([k,v])=>v&&<div key={k} className="review-row"><span className="review-key">{k}</span><span className="review-val">{v}</span></div>)}
+                    </div>
+                  ))}
+                </div>
+                <div style={{marginTop:20}}>
+                  <label className="inp-label">Additional Notes (optional)</label>
+                  <textarea className="inp" style={{height:80,resize:'none'}} value={d.notes} onChange={e=>upd('notes',e.target.value)} placeholder="Any special requirements or questions…" />
+                </div>
+                <NavRow onBack={back} onNext={handleSubmit} nextLabel="Submit & Choose Plan →" nextGold={true} />
+              </div>
+            )}
+
+            {/* STEP 7: Confirmation */}
+            {step===7 && (
+              <div style={{textAlign:'center',padding:'20px 0'}}>
+                <div className="confirm-circle">✓</div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:34,fontWeight:300,color:'var(--espresso)',marginBottom:10}}>Application Submitted</div>
+                <p style={{color:'rgba(15,12,8,0.5)',fontSize:15,maxWidth:380,margin:'0 auto 28px',lineHeight:1.7}}>Your venue is under manual review. You'll hear back within 24–48 hours after completing your plan selection.</p>
+                <div style={{background:'rgba(15,12,8,0.05)',borderRadius:18,padding:24,border:'1.5px solid rgba(15,12,8,0.08)',textAlign:'left',marginBottom:24}}>
+                  <div style={{fontWeight:600,fontSize:15,marginBottom:4}}>📞 Next Step: Schedule Your Call</div>
+                  <div style={{fontSize:13,color:'rgba(15,12,8,0.5)',marginBottom:14}}>15-minute venue assessment with our team</div>
+                  <a href="https://calendly.com/foreignaffairs-venue/intro" target="_blank" rel="noopener noreferrer" style={{display:'block',textAlign:'center',background:'var(--espresso)',color:'var(--cream)',padding:'14px',borderRadius:12,fontWeight:600,textDecoration:'none',fontSize:15}}>Schedule Phone Call →</a>
+                </div>
+                <button onClick={()=>{setD(venueInit);setStep(0);}} style={{width:'100%',background:'none',border:'2px solid var(--espresso)',borderRadius:14,padding:'14px',fontWeight:600,fontSize:15,color:'var(--espresso)',cursor:'pointer',marginBottom:12,transition:'all 0.2s'}} onMouseOver={e=>{e.target.style.background='var(--espresso)';e.target.style.color='var(--cream)'}} onMouseOut={e=>{e.target.style.background='none';e.target.style.color='var(--espresso)'}}>
+                  Submit Another Venue
+                </button>
+                <div style={{fontSize:11,color:'rgba(15,12,8,0.3)',fontFamily:'monospace',marginTop:8}}>{subId}</div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ═══════════════════════════════════════════
+// VENDOR REGISTRATION FLOW
+// ═══════════════════════════════════════════
+const VENDOR_STEPS = ['Welcome','Business Info','Event Selection','Booth Setup','Terms','Payment','Confirmation'];
+
+const vendorInit = {
+  businessName:'', category:'', categoryOther:'', description:'', website:'', instagram:'', referralCode:'',
+  registrationType:'specific', selectedEvents:[], generalPreferences:[],
+  boothSize:'standard', needsPower:false, needsTable:true, specialRequirements:'',
+  firstName:'', lastName:'', email:'', phone:'', agreeToTerms:false, saveCard:true,
+};
+
+function VendorFlow({ onBack }) {
+  const [step, setStep]       = React.useState(0);
+  const [d, setD]             = React.useState(vendorInit);
+  const [showPay, setShowPay] = React.useState(false);
+  const [subId]               = React.useState(() => genId('FA-VENDOR'));
+
+  const calcPrice = () => {
+    let base = 500;
+    if(d.registrationType==='specific' && d.selectedEvents.length>0) {
+      base = Math.max(...d.selectedEvents.map(id => UPCOMING_EVENTS.find(e=>e.id===id)?.price||500));
+    } else if(d.registrationType==='general') { base = 200; }
+    return base + (BOOTH_SIZES.find(b=>b.value===d.boothSize)?.price||0);
+  };
+  const price = calcPrice();
+
+  const progress = (step / (VENDOR_STEPS.length-1)) * 100;
+  const upd = (k,v) => setD(p=>({...p,[k]:v}));
+  const next = () => { if(step<VENDOR_STEPS.length-1){window.scrollTo(0,0);setStep(s=>s+1);fireConfetti(window.innerWidth/2,60);} };
+  const back = () => { if(step===0) onBack(); else {window.scrollTo(0,0);setStep(s=>s-1);} };
+
+  const handleSubmit = async () => {
+    const selectedEventNames = d.selectedEvents.map(id=>UPCOMING_EVENTS.find(e=>e.id===id)?.name).filter(Boolean).join(', ');
+    const payload = {
+      type:'vendor', submissionId:subId, submittedAt:new Date().toISOString(),
+      paymentStatus:'pending', planAmount:price,
+      ...d, selectedEventNames,
+      boothSizeLabel: BOOTH_SIZES.find(b=>b.value===d.boothSize)?.label||'Standard',
+    };
+    await sendToWorker(payload);
+    setShowPay(true);
+  };
+
+  return (
+    <>
+      <Header progress={progress} mode="vendor" />
+      {showPay && (
+        <PaymentModal mode="vendor" vendorPrice={price} submissionId={subId} onClose={()=>setShowPay(false)} />
+      )}
+      <div style={{paddingTop:100,paddingBottom:48,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'100px 16px 48px'}}>
+        <div style={{width:'100%',maxWidth:680}}>
+          <div className="card fade-in">
+
+            {/* STEP 0: Welcome */}
+            {step===0 && (
+              <div>
+                <div style={{textAlign:'center',marginBottom:32}}>
+                  <div className="step-label" style={{marginBottom:8}}>Vendor Registration</div>
+                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(30px,5vw,44px)',fontWeight:300,color:'var(--espresso)',lineHeight:1.1,marginBottom:12}}>Become a Vendor</div>
+                  <p style={{fontSize:15,color:'rgba(15,12,8,0.5)',maxWidth:440,margin:'0 auto',lineHeight:1.7}}>Join our curated marketplace events and connect with engaged customers across the country.</p>
+                </div>
+                <div className="benefit-grid" style={{marginBottom:32}}>
+                  {[
+                    {t:'High-Traffic Events',d:'Access 100+ engaged attendees per event.'},
+                    {t:'Early Bird Pricing',d:'Register early for just $200 — save $300 off standard.'},
+                    {t:'Marketing Support',d:'We promote your business across our digital channels.'},
+                    {t:'Flexible Options',d:'Choose specific events or register for future opportunities.'},
+                    {t:'Professional Setup',d:'Standard booth included, power access available.'},
+                    {t:'Vendor Community',d:'Network with other makers and entrepreneurs.'},
+                  ].map((b,i)=>(
+                    <div key={i} className="benefit-card">
+                      <div className="benefit-num">0{i+1}</div>
+                      <div className="benefit-t">{b.t}</div>
+                      <div className="benefit-d">{b.d}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:'flex',gap:12,justifyContent:'center'}}>
+                  <button className="btn-ghost" onClick={back}>← Back</button>
+                  <button className="btn-primary" onClick={next} style={{padding:'16px 40px'}}>Register Now →</button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 1: Business Info */}
+            {step===1 && (
+              <div>
+                <div className="step-label">Step 01</div>
+                <div className="step-title">Business Information</div>
+                <div className="step-sub">Tell us about your business</div>
+                <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
+                  <div><label className="inp-label">Business Name</label><input className="inp" value={d.businessName} onChange={e=>upd('businessName',e.target.value)} placeholder="Your Business Name" /></div>
+                  <div>
+                    <label className="inp-label">Product Category</label>
+                    <select className="inp" value={d.category} onChange={e=>upd('category',e.target.value)}>
+                      <option value="">Select category…</option>
+                      {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  {d.category==='Other' && <div><label className="inp-label">Please specify</label><input className="inp" value={d.categoryOther} onChange={e=>upd('categoryOther',e.target.value)} placeholder="Describe your category" /></div>}
+                  <div><label className="inp-label">Business Description</label><textarea className="inp" style={{height:90,resize:'none'}} value={d.description} onChange={e=>upd('description',e.target.value)} placeholder="Describe what you sell in 2–3 sentences…" /></div>
+                  <div className="g2">
+                    <div><label className="inp-label">Website (optional)</label><input className="inp" type="url" value={d.website} onChange={e=>upd('website',e.target.value)} placeholder="yoursite.com" /></div>
+                    <div><label className="inp-label">Instagram (optional)</label><input className="inp" value={d.instagram} onChange={e=>upd('instagram',e.target.value)} placeholder="@handle" /></div>
+                  </div>
+                  <div><label className="inp-label">Referral Code (optional)</label><input className="inp" value={d.referralCode} onChange={e=>upd('referralCode',e.target.value)} placeholder="Enter code if you have one" /></div>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 2: Event Selection */}
+            {step===2 && (
+              <div>
+                <div className="step-label">Step 02</div>
+                <div className="step-title">Event Selection</div>
+                <div className="step-sub">Choose how you want to participate</div>
+                <div style={{marginTop:20}}>
+                  <div className="mode-pills" style={{marginBottom:20}}>
+                    <div className={`mode-pill ${d.registrationType==='specific'?'active':''}`} onClick={()=>upd('registrationType','specific')}>Specific Event</div>
+                    <div className={`mode-pill ${d.registrationType==='general'?'active':''}`} onClick={()=>upd('registrationType','general')}>General Pool</div>
+                  </div>
+                  {d.registrationType==='specific' ? (
+                    <div className="scroll-inner">
+                      {UPCOMING_EVENTS.map(ev=>{
+                        const sel = d.selectedEvents.includes(ev.id);
+                        return (
+                          <div key={ev.id} className={`event-card ${sel?'selected':''}`} onClick={()=>upd('selectedEvents',toggle(d.selectedEvents,ev.id))}>
+                            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                              <div>
+                                <div style={{fontWeight:600,fontSize:15,marginBottom:4}}>{ev.name}</div>
+                                <div style={{fontSize:13,opacity:0.6}}>{new Date(ev.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})} · {ev.location}</div>
+                              </div>
+                              <div style={{fontFamily:"'Cinzel',serif",fontWeight:600,fontSize:16,color:sel?'var(--gold-light)':'var(--gold)',flexShrink:0,marginLeft:12}}>${ev.price}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="inp-label" style={{marginBottom:12}}>What types of events interest you?</label>
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+                        {UPCOMING_EVENTS.map(ev=>(
+                          <button key={ev.id} className={`chip ${d.generalPreferences.includes(ev.name)?'active':''}`} onClick={()=>upd('generalPreferences',toggle(d.generalPreferences,ev.name))}>{ev.name}</button>
+                        ))}
+                      </div>
+                      <div className="info-banner">
+                        <strong>Early Bird Advantage:</strong> Registering before venues are finalized helps us plan better — and locks you in at the $200 early bird rate.
+                      </div>
+                    </div>
+                  )}
+                  {price > 0 && (
+                    <div style={{marginTop:16,background:'var(--espresso)',borderRadius:14,padding:'14px 18px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <span style={{fontSize:13,color:'rgba(244,228,193,0.6)'}}>Estimated Total</span>
+                      <span style={{fontFamily:"'Cinzel',serif",fontSize:20,fontWeight:600,color:'var(--gold)'}}>${price}</span>
+                    </div>
+                  )}
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 3: Booth Setup */}
+            {step===3 && (
+              <div>
+                <div className="step-label">Step 03</div>
+                <div className="step-title">Booth Requirements</div>
+                <div className="step-sub">Tell us what you need for your setup</div>
+                <div style={{marginTop:24,display:'flex',flexDirection:'column',gap:16}}>
+                  <div>
+                    <label className="inp-label" style={{marginBottom:12}}>Booth Size</label>
+                    {BOOTH_SIZES.map(b=>(
+                      <div key={b.value} className={`event-card ${d.boothSize===b.value?'selected':''}`} style={{marginBottom:10}} onClick={()=>upd('boothSize',b.value)}>
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                          <div style={{fontWeight:600,fontSize:14}}>{b.label}</div>
+                          <div style={{fontFamily:"'Cinzel',serif",fontWeight:600,fontSize:14,color:d.boothSize===b.value?'var(--gold-light)':'var(--gold)'}}>{b.sub}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <label className="check-row" onClick={()=>upd('needsTable',!d.needsTable)}>
+                    <div className={`check-box ${d.needsTable?'checked':''}`}>{d.needsTable&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:500}}>I need a table</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>Standard 6ft table (while supplies last)</div></div>
+                  </label>
+                  <label className="check-row" onClick={()=>upd('needsPower',!d.needsPower)}>
+                    <div className={`check-box ${d.needsPower?'checked':''}`}>{d.needsPower&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:500}}>I need power access</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>110V outlet for lighting, payment processing, etc.</div></div>
+                  </label>
+                  <div><label className="inp-label">Special Requirements (optional)</label><textarea className="inp" style={{height:80,resize:'none'}} value={d.specialRequirements} onChange={e=>upd('specialRequirements',e.target.value)} placeholder="Near entrance, away from food vendors, etc." /></div>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 4: Terms */}
+            {step===4 && (
+              <div>
+                <div className="step-label">Step 04</div>
+                <div className="step-title">Terms & Conditions</div>
+                <div className="step-sub">Please review before proceeding</div>
+                <div style={{marginTop:20}}>
+                  <div className="terms-box">
+                    <h4>Vendor Agreement</h4>
+                    <p>By registering as a vendor with Foreign Affairs, you agree to the following terms:</p>
+                    <p><strong>1. Payment:</strong> All fees must be paid in full before event confirmation. Early bird pricing ($200) is available for general registration or early events. Standard pricing ($500) applies to confirmed venue events.</p>
+                    <p><strong>2. Cancellation:</strong> Cancellations made 14+ days before event receive 50% refund. No refunds within 14 days; credit can be applied to future events.</p>
+                    <p><strong>3. Setup:</strong> Vendors must arrive 1 hour before event start time. Late arrivals may forfeit prime positioning.</p>
+                    <p><strong>4. Insurance:</strong> You will be required to upload proof of business insurance and any necessary permits (health dept., etc.) after payment.</p>
+                    <p><strong>5. Conduct:</strong> Professional conduct required. We reserve the right to remove vendors violating community standards with no refund.</p>
+                    <p><strong>6. Marketing:</strong> By participating, you grant Foreign Affairs rights to photograph your booth and products for promotional use across all platforms.</p>
+                    <p><strong>7. Force Majeure:</strong> In the event of cancellation due to circumstances beyond our control, credits will be issued for a future event.</p>
+                  </div>
+                  <label className="check-row" style={{marginTop:16,background:'rgba(201,169,97,0.08)',borderColor:'rgba(201,169,97,0.2)'}} onClick={()=>upd('agreeToTerms',!d.agreeToTerms)}>
+                    <div className={`check-box ${d.agreeToTerms?'checked':''}`}>{d.agreeToTerms&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:600}}>I agree to the terms and conditions</div><div style={{fontSize:13,color:'rgba(15,12,8,0.5)',marginTop:2}}>I understand document upload will be required after payment.</div></div>
+                  </label>
+                </div>
+                <NavRow onBack={back} onNext={next} nextLabel="Continue to Payment →" disabled={!d.agreeToTerms} />
+              </div>
+            )}
+
+            {/* STEP 5: Contact + Payment */}
+            {step===5 && (
+              <div>
+                <div className="step-label">Step 05</div>
+                <div className="step-title">Contact & Payment</div>
+                <div className="step-sub">Your information for registration records</div>
+
+                <div style={{background:'var(--espresso)',borderRadius:18,padding:'20px 22px',marginTop:20,marginBottom:24}}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:13,color:'rgba(244,228,193,0.55)',marginBottom:8}}>
+                    <span>Registration</span><span>{d.registrationType==='specific'?d.selectedEvents.map(id=>UPCOMING_EVENTS.find(e=>e.id===id)?.name).join(', ')||'Specific Event':'General Pool'}</span>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:13,color:'rgba(244,228,193,0.55)',marginBottom:12}}>
+                    <span>Booth</span><span>{BOOTH_SIZES.find(b=>b.value===d.boothSize)?.label||'Standard'}</span>
+                  </div>
+                  <div style={{borderTop:'1px solid rgba(244,228,193,0.12)',paddingTop:12,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                    <span style={{fontWeight:600,fontSize:16,color:'var(--cream)'}}>Total Due</span>
+                    <span style={{fontFamily:"'Cinzel',serif",fontSize:26,fontWeight:600,color:'var(--gold)'}}>${price}</span>
+                  </div>
+                </div>
+
+                <div style={{display:'flex',flexDirection:'column',gap:14}}>
+                  <div className="g2">
+                    <div><label className="inp-label">First Name</label><input className="inp" value={d.firstName} onChange={e=>upd('firstName',e.target.value)} placeholder="Jane" /></div>
+                    <div><label className="inp-label">Last Name</label><input className="inp" value={d.lastName} onChange={e=>upd('lastName',e.target.value)} placeholder="Doe" /></div>
+                  </div>
+                  <div><label className="inp-label">Email</label><input className="inp" type="email" value={d.email} onChange={e=>upd('email',e.target.value)} placeholder="vendor@example.com" /></div>
+                  <div><label className="inp-label">Phone</label><input className="inp" type="tel" value={d.phone} onChange={e=>upd('phone',e.target.value)} placeholder="(555) 123-4567" /></div>
+                </div>
+
+                <NavRow onBack={back} onNext={handleSubmit} nextLabel={`Proceed to Pay $${price} →`} nextGold={true} disabled={!d.firstName||!d.lastName||!d.email} />
+              </div>
+            )}
+
+            {/* STEP 6: Confirmation */}
+            {step===6 && (
+              <div style={{textAlign:'center',padding:'20px 0'}}>
+                <div className="confirm-circle">✓</div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:34,fontWeight:300,color:'var(--espresso)',marginBottom:10}}>Registration Submitted</div>
+                <p style={{color:'rgba(15,12,8,0.5)',fontSize:15,maxWidth:360,margin:'0 auto 28px',lineHeight:1.7}}>Welcome to the Foreign Affairs vendor community. Complete your payment to confirm your spot.</p>
+                <div style={{background:'rgba(201,169,97,0.1)',borderRadius:18,padding:24,border:'1.5px solid rgba(201,169,97,0.2)',textAlign:'left',marginBottom:24}}>
+                  <div style={{display:'flex',gap:14,marginBottom:16}}>
+                    <span style={{fontSize:26}}>📧</span>
+                    <div>
+                      <div style={{fontWeight:600,marginBottom:4}}>Check Your Email</div>
+                      <div style={{fontSize:13,color:'rgba(15,12,8,0.55)',lineHeight:1.6}}>You'll receive a payment receipt and a secure link to upload required documents (business license, insurance, permits).</div>
+                    </div>
+                  </div>
+                  <div style={{background:'var(--espresso)',color:'var(--cream)',borderRadius:12,padding:'16px 18px',fontSize:13}}>
+                    <div style={{fontWeight:600,marginBottom:8}}>Next Steps:</div>
+                    <div style={{color:'rgba(244,228,193,0.7)',lineHeight:1.8}}>
+                      · Upload required documents via secure email link<br/>
+                      · Receive event assignment / confirmation details<br/>
+                      · Access vendor portal for event day logistics
+                    </div>
+                  </div>
+                </div>
+                <button onClick={()=>{setD(vendorInit);setStep(0);}} style={{width:'100%',background:'none',border:'2px solid var(--espresso)',borderRadius:14,padding:'14px',fontWeight:600,fontSize:15,color:'var(--espresso)',cursor:'pointer',marginBottom:12,transition:'all 0.2s'}} onMouseOver={e=>{e.target.style.background='var(--espresso)';e.target.style.color='var(--cream)'}} onMouseOut={e=>{e.target.style.background='none';e.target.style.color='var(--espresso)'}}>
+                  Register Another Vendor
+                </button>
+                <div style={{fontSize:11,color:'rgba(15,12,8,0.3)',fontFamily:'monospace',marginTop:8}}>{subId}</div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────
+// ROOT APP
+// ─────────────────────────────────────────────
+function App() {
+  const [mode, setMode] = React.useState(null); // null | 'venue' | 'vendor'
+
+  if(!mode) return <Landing onSelect={setMode} />;
+  if(mode==='venue')  return <VenueFlow  onBack={()=>setMode(null)} />;
+  if(mode==='vendor') return <VendorFlow onBack={()=>setMode(null)} />;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
