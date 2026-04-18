@@ -1,1335 +1,1206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Foreign Affairs — Partner & Vendor Portal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
-<style>
-/* ── RESET ── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --esp:#0f0c08;
-  --gold:#c9a961;
-  --goldl:#e2c47a;
-  --cream:#f4e4c1;
-  --brd:rgba(201,169,97,.2);
-}
-html{scroll-behavior:smooth}
-body{background:var(--esp);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
-::selection{background:rgba(201,169,97,.3);color:var(--esp)}
-input,select,textarea,button{font-family:'Jost',sans-serif}
-button{cursor:pointer;border:none;outline:none;background:none}
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(201,169,97,.3);border-radius:3px}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foreign Affairs — Partner & Vendor Portal</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --espresso: #0f0c08;
+      --gold: #c9a961;
+      --gold-light: #e2c47a;
+      --cream: #f4e4c1;
+      --cream-dark: #e8d4a8;
+      --muted: rgba(15,12,8,0.45);
+      --border: rgba(201,169,97,0.2);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--espresso);
+      color: var(--cream);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    ::selection { background: rgba(201,169,97,0.3); color: var(--espresso); }
+    input, select, textarea {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+    }
+    button { font-family: 'Jost', sans-serif; cursor: pointer; border: none; outline: none; }
 
-/* ── KEYFRAMES ── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes shimmer{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
-@keyframes pglow{0%,100%{box-shadow:0 0 8px rgba(201,169,97,.4)}50%{box-shadow:0 0 22px rgba(201,169,97,.8)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-@keyframes bgdrift{0%{transform:scale(1)}100%{transform:scale(1.06)}}
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(201,169,97,0.3); border-radius: 3px; }
 
-/* ── UTILITY ── */
-.hidden{display:none!important}
-.fade-up{animation:fadeUp .65s ease both}
-.fade-in{animation:fadeIn .4s ease both}
+    /* ── Animations ── */
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+    @keyframes shimmer  { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+    @keyframes pulse    { 0%,100% { transform:scale(1); } 50% { transform:scale(1.04); } }
+    @keyframes float    { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
+    @keyframes spin     { to { transform:rotate(360deg); } }
+    @keyframes slideIn  { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+    @keyframes slideOut { from { transform:translateX(0); opacity:1; } to { transform:translateX(-100%); opacity:0; } }
+    @keyframes progressGlow { 0%,100%{box-shadow:0 0 10px rgba(201,169,97,0.4);} 50%{box-shadow:0 0 25px rgba(201,169,97,0.8);} }
 
-/* ── HEADER ── */
-#header{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  background:rgba(15,12,8,.96);backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--brd);padding:13px 24px 11px;
-}
-.hdr-inner{max-width:720px;margin:0 auto}
-.hdr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
-.logo-wrap{display:flex;align-items:center;gap:11px}
-.logo-img{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--gold);object-fit:cover}
-.logo-name{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.22em;color:var(--gold)}
-.logo-sub{font-size:9px;letter-spacing:.35em;color:rgba(244,228,193,.4);text-transform:uppercase;margin-top:1px}
-.pct-label{font-size:9px;color:rgba(244,228,193,.35);letter-spacing:.2em;text-transform:uppercase}
-.pct-val{font-family:'Cinzel',serif;font-size:14px;color:var(--gold);font-weight:600;text-align:right}
-.pbar-track{height:5px;background:rgba(201,169,97,.12);border-radius:999px;overflow:hidden}
-.pbar-fill{
-  height:100%;border-radius:999px;width:0%;
-  background:linear-gradient(90deg,var(--gold),var(--goldl),var(--gold));
-  background-size:200% 100%;
-  animation:shimmer 2.5s ease infinite,pglow 2s ease infinite;
-  transition:width .55s cubic-bezier(.34,1.56,.64,1);
-}
+    .fade-up    { animation: fadeUp  0.7s ease both; }
+    .fade-in    { animation: fadeIn  0.5s ease both; }
+    .float-anim { animation: float   3s ease-in-out infinite; }
+    .spin-anim  { animation: spin    0.9s linear infinite; }
 
-/* ── LANDING ── */
-#landing{
-  min-height:100vh;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  position:relative;overflow:hidden;text-align:center;padding:40px 20px;
-}
-.land-bg{
-  position:absolute;inset:0;background-size:cover;background-position:center;
-  animation:bgdrift 14s ease-in-out alternate infinite;
-}
-.land-ov{position:absolute;inset:0;background:linear-gradient(to top,#0f0c08 0%,rgba(15,12,8,.65) 50%,rgba(15,12,8,.38) 100%)}
-.land-content{position:relative;z-index:2;max-width:640px;width:100%}
-.land-eye{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.45em;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
-.land-title{font-family:'Cormorant Garamond',serif;font-size:clamp(54px,10vw,100px);font-weight:300;line-height:.92;color:var(--cream);letter-spacing:-.02em;margin-bottom:20px}
-.land-sub{font-size:16px;color:rgba(244,228,193,.55);line-height:1.65;margin-bottom:52px}
-.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:520px;width:100%;margin:0 auto}
-@media(max-width:480px){.mode-grid{grid-template-columns:1fr}}
-.mode-card{
-  background:rgba(244,228,193,.06);border:1.5px solid rgba(201,169,97,.2);
-  border-radius:18px;padding:26px 22px;cursor:pointer;
-  transition:all .25s;text-align:left;position:relative;overflow:hidden;
-}
-.mode-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,169,97,.1),transparent);opacity:0;transition:opacity .25s}
-.mode-card:hover{border-color:rgba(201,169,97,.6);transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.3)}
-.mode-card:hover::after{opacity:1}
-.mc-icon{font-size:26px;margin-bottom:12px}
-.mc-title{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.18em;color:var(--gold);margin-bottom:7px}
-.mc-desc{font-size:12.5px;color:rgba(244,228,193,.45);line-height:1.6}
+    /* ── Card ── */
+    .card {
+      background: var(--cream);
+      border-radius: 28px;
+      padding: 48px;
+      box-shadow: 0 32px 64px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,169,97,0.15);
+      color: var(--espresso);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    @media (max-width: 600px) { .card { padding: 28px 20px; border-radius: 20px; } }
 
-/* ── MAIN WRAP ── */
-#app-wrap{display:none;padding:96px 16px 48px;min-height:100vh;display:none;align-items:flex-start;justify-content:center}
-#app-wrap.visible{display:flex}
-.step-outer{width:100%;max-width:680px;margin:0 auto}
+    /* ── Input ── */
+    .inp {
+      width: 100%;
+      background: rgba(15,12,8,0.06);
+      border: 1.5px solid rgba(15,12,8,0.1);
+      border-radius: 14px;
+      padding: 14px 18px;
+      color: var(--espresso);
+      font-size: 15px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      appearance: none;
+    }
+    .inp:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,169,97,0.12); }
+    .inp::placeholder { color: rgba(15,12,8,0.28); }
+    .inp-label { display:block; font-size:13px; font-weight:500; margin-bottom:8px; color:rgba(15,12,8,0.7); letter-spacing:0.02em; }
 
-/* ── CARD ── */
-.card{
-  background:var(--cream);border-radius:26px;padding:44px;
-  box-shadow:0 30px 60px -10px rgba(0,0,0,.55),0 0 0 1px rgba(201,169,97,.12);
-  color:var(--esp);position:relative;overflow:hidden;
-}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-@media(max-width:560px){.card{padding:26px 18px;border-radius:18px}}
+    /* ── Buttons ── */
+    .btn-primary {
+      background: var(--espresso);
+      color: var(--cream);
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover { background: #1e190f; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-gold {
+      background: var(--gold);
+      color: var(--espresso);
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+    }
+    .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,169,97,0.3); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--espresso);
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 2px solid rgba(15,12,8,0.18);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-ghost:hover { background: rgba(15,12,8,0.06); }
+    .btn-disabled { opacity: 0.45; pointer-events: none; cursor: not-allowed; }
 
-/* ── STEP HEAD ── */
-.s-eye{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:5px}
-.s-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,36px);font-weight:300;color:var(--esp);line-height:1.15;margin-bottom:6px}
-.s-sub{font-size:13.5px;color:rgba(15,12,8,.42);margin-bottom:24px}
+    /* ── Toggle chip ── */
+    .chip {
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(15,12,8,0.1);
+      background: rgba(15,12,8,0.05);
+      color: rgba(15,12,8,0.6);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s;
+      text-align: left;
+    }
+    .chip:hover { background: rgba(15,12,8,0.09); border-color: rgba(201,169,97,0.3); }
+    .chip.active { background: var(--espresso); color: var(--cream); border-color: var(--espresso); }
 
-/* ── INPUTS ── */
-.field{margin-bottom:16px}
-.lbl{display:block;font-size:12.5px;font-weight:500;color:rgba(15,12,8,.65);letter-spacing:.025em;margin-bottom:7px}
-.inp{
-  width:100%;background:rgba(15,12,8,.05);border:1.5px solid rgba(15,12,8,.1);
-  border-radius:13px;padding:13px 16px;color:var(--esp);font-size:14.5px;
-  transition:border-color .2s,box-shadow .2s;outline:none;appearance:none;
-}
-.inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,169,97,.11)}
-.inp::placeholder{color:rgba(15,12,8,.25)}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:480px){.g2{grid-template-columns:1fr}}
+    /* ── Check-row ── */
+    .check-row {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px; border-radius: 14px;
+      background: rgba(15,12,8,0.05); border: 1.5px solid rgba(15,12,8,0.08);
+      cursor: pointer; transition: background 0.18s, border-color 0.18s;
+    }
+    .check-row:hover { background: rgba(15,12,8,0.09); }
+    .check-box {
+      width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px;
+      border: 1.5px solid rgba(15,12,8,0.25); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s; background: white;
+    }
+    .check-box.checked { background: var(--gold); border-color: var(--gold); }
 
-/* ── CHECKBOX ROW ── */
-.chk-row{
-  display:flex;align-items:flex-start;gap:13px;padding:14px 16px;
-  border-radius:13px;background:rgba(15,12,8,.05);border:1.5px solid rgba(15,12,8,.08);
-  cursor:pointer;transition:background .18s,border-color .18s;margin-bottom:10px;
-  user-select:none;
-}
-.chk-row:hover{background:rgba(15,12,8,.09)}
-.chk-box{
-  width:19px;height:19px;flex-shrink:0;margin-top:1px;
-  border:1.5px solid rgba(15,12,8,.22);border-radius:5px;
-  display:flex;align-items:center;justify-content:center;
-  background:#fff;transition:all .15s;
-}
-.chk-box.on{background:var(--gold);border-color:var(--gold)}
-.chk-title{font-size:14px;font-weight:500;color:var(--esp)}
-.chk-sub{font-size:12px;color:rgba(15,12,8,.42);margin-top:2px;line-height:1.45}
+    /* ── Progress bar ── */
+    .progress-wrap {
+      height: 6px; background: rgba(201,169,97,0.15); border-radius: 999px;
+      overflow: hidden; position: relative;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+      background-size: 200% 100%;
+      animation: shimmer 2.5s ease infinite, progressGlow 2s ease infinite;
+      transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    }
 
-/* ── CHIP (multi-select toggle) ── */
-.chip{
-  padding:11px 14px;border-radius:12px;border:1.5px solid rgba(15,12,8,.1);
-  background:rgba(15,12,8,.05);color:rgba(15,12,8,.55);font-size:13px;font-weight:500;
-  cursor:pointer;transition:all .18s;text-align:left;user-select:none;
-}
-.chip:hover{background:rgba(15,12,8,.09);border-color:rgba(201,169,97,.3)}
-.chip.on{background:var(--esp);color:var(--cream);border-color:var(--esp)}
-.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-@media(max-width:400px){.chip-grid{grid-template-columns:1fr}}
+    /* ── Header ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(15,12,8,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px 12px;
+    }
+    .header-inner { max-width: 760px; margin: 0 auto; }
+    .logo-row { display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px; }
+    .logo-img { width:38px; height:38px; border-radius:50%; border:1.5px solid var(--gold); object-fit:cover; }
+    .logo-text { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.22em; color:var(--gold); }
+    .logo-sub  { font-size:10px; letter-spacing:0.35em; color:rgba(244,228,193,0.45); text-transform:uppercase; margin-left:2px; }
 
-/* ── DATE PICKER ── */
-.date-section{background:rgba(15,12,8,.05);border-radius:14px;padding:18px;border:1.5px solid rgba(15,12,8,.08);margin-bottom:16px}
-.date-input-row{display:flex;gap:10px;align-items:flex-end}
-.date-input-row .inp{flex:1}
-.add-date-btn{
-  flex-shrink:0;background:var(--esp);color:var(--cream);
-  border-radius:12px;padding:13px 18px;font-size:13px;font-weight:500;
-  transition:background .2s;white-space:nowrap;
-}
-.add-date-btn:hover{background:#1e190f}
-.date-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.date-tag{
-  display:inline-flex;align-items:center;gap:7px;
-  background:var(--esp);color:var(--cream);border-radius:50px;
-  padding:6px 13px;font-size:12.5px;
-}
-.date-tag-rm{background:none;color:rgba(244,228,193,.5);font-size:17px;line-height:1;padding:0;transition:color .15s}
-.date-tag-rm:hover{color:var(--gold)}
+    /* ── Step label ── */
+    .step-label { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.3em; color:var(--gold); font-weight:500; text-transform:uppercase; }
+    .step-title { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:300; color:var(--espresso); line-height:1.15; margin-top:4px; }
+    .step-sub   { font-size:14px; color:rgba(15,12,8,0.45); margin-top:6px; }
 
-/* ── DOC ITEMS ── */
-.doc-item{
-  display:flex;align-items:flex-start;gap:12px;
-  padding:13px 15px;border-radius:13px;border:1.5px solid rgba(15,12,8,.08);
-  background:rgba(15,12,8,.04);cursor:pointer;transition:all .18s;margin-bottom:9px;
-  user-select:none;
-}
-.doc-item.on{background:var(--esp);border-color:var(--esp)}
-.doc-chk{width:19px;height:19px;flex-shrink:0;border-radius:5px;border:1.5px solid rgba(15,12,8,.2);background:#fff;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .15s}
-.doc-item.on .doc-chk{background:var(--gold);border-color:var(--gold)}
-.doc-name{font-size:13.5px;font-weight:500;color:var(--esp);transition:color .15s}
-.doc-item.on .doc-name{color:var(--cream)}
-.doc-desc{font-size:12px;color:rgba(15,12,8,.45);margin-top:2px;line-height:1.4;transition:color .15s}
-.doc-item.on .doc-desc{color:rgba(244,228,193,.55)}
-.doc-req{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;margin-left:6px;background:rgba(15,12,8,.09);color:rgba(15,12,8,.45)}
-.doc-item.on .doc-req{background:rgba(201,169,97,.2);color:var(--gold)}
+    /* ── Review section ── */
+    .review-section { background:rgba(15,12,8,0.06); border:1.5px solid rgba(15,12,8,0.08); border-radius:16px; padding:18px; }
+    .review-title   { font-size:11px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:rgba(15,12,8,0.4); margin-bottom:10px; }
+    .review-row     { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; font-size:13.5px; padding:5px 0; border-bottom:1px solid rgba(15,12,8,0.06); }
+    .review-row:last-child { border-bottom:none; }
+    .review-key { color:rgba(15,12,8,0.5); flex-shrink:0; }
+    .review-val { color:var(--espresso); font-weight:500; text-align:right; }
 
-/* ── EVENT CARD ── */
-.ev-card{
-  padding:15px;border-radius:13px;border:1.5px solid rgba(15,12,8,.08);
-  background:rgba(15,12,8,.04);cursor:pointer;transition:all .18s;margin-bottom:9px;
-  user-select:none;
-}
-.ev-card.on{background:var(--esp);border-color:var(--esp);color:var(--cream)}
-.ev-name{font-size:14.5px;font-weight:600;margin-bottom:4px}
-.ev-meta{font-size:12.5px;opacity:.55}
-.ev-price{font-family:'Cinzel',serif;font-weight:600;font-size:15px;color:var(--gold);flex-shrink:0;margin-left:12px}
-.ev-card.on .ev-price{color:var(--goldl)}
+    /* ── Confetti canvas ── */
+    #confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:999; width:100%; height:100%; }
 
-/* ── MODE PILLS ── */
-.mode-pills{display:flex;background:rgba(15,12,8,.07);border-radius:12px;padding:3px;margin-bottom:18px}
-.mpill{flex:1;padding:9px;border-radius:9px;text-align:center;font-size:13.5px;font-weight:500;cursor:pointer;transition:all .2s;color:rgba(15,12,8,.45)}
-.mpill.on{background:var(--esp);color:var(--cream);box-shadow:0 4px 10px rgba(0,0,0,.18)}
+    /* ── Payment modal ── */
+    .payment-modal-overlay {
+      position: fixed; inset:0; z-index:200;
+      background: rgba(15,12,8,0.85); backdrop-filter:blur(8px);
+      display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .payment-modal {
+      background: var(--cream); border-radius:24px;
+      padding:40px 36px; max-width:480px; width:100%;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+      animation: fadeUp 0.35s ease both;
+      color: var(--espresso);
+    }
+    .whop-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      width:100%; padding:18px 22px; border-radius:16px;
+      border: 1.5px solid rgba(15,12,8,0.12);
+      background: rgba(15,12,8,0.04);
+      color: var(--espresso); font-size:15px; font-weight:500;
+      cursor:pointer; transition:all 0.2s; text-decoration:none;
+      margin-bottom:12px;
+    }
+    .whop-btn:hover { background:var(--espresso); color:var(--cream); border-color:var(--espresso); transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+    .whop-btn .price-tag { font-family:'Cinzel',serif; font-size:18px; font-weight:600; color:var(--gold); }
+    .whop-btn:hover .price-tag { color:var(--gold-light); }
 
-/* ── BOOTH CARD ── */
-.booth-card{
-  padding:15px;border-radius:13px;border:1.5px solid rgba(15,12,8,.08);
-  background:rgba(15,12,8,.04);cursor:pointer;transition:all .18s;margin-bottom:9px;
-  user-select:none;display:flex;justify-content:space-between;align-items:center;
-}
-.booth-card.on{background:var(--esp);border-color:var(--esp);color:var(--cream)}
-.booth-name{font-size:14px;font-weight:600}
-.booth-sub{font-size:12px;opacity:.5;margin-top:2px}
-.booth-price{font-family:'Cinzel',serif;font-weight:600;color:var(--gold);flex-shrink:0}
-.booth-card.on .booth-price{color:var(--goldl)}
+    /* ── Landing ── */
+    .landing {
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      position:relative; overflow:hidden; cursor:pointer;
+      text-align:center; padding:40px 20px;
+    }
+    .landing-bg {
+      position:absolute; inset:0; background-size:cover; background-position:center;
+      transition:transform 8s ease; will-change:transform;
+    }
+    .landing:hover .landing-bg { transform:scale(1.03); }
+    .landing-overlay {
+      position:absolute; inset:0;
+      background:linear-gradient(to top, #0f0c08 0%, rgba(15,12,8,0.62) 50%, rgba(15,12,8,0.4) 100%);
+    }
+    .landing-content { position:relative; z-index:2; max-width:680px; }
+    .landing-eyebrow { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.45em; color:var(--gold); text-transform:uppercase; margin-bottom:20px; }
+    .landing-title {
+      font-family:'Cormorant Garamond',serif; font-size:clamp(52px,9vw,96px);
+      font-weight:300; line-height:0.95; color:var(--cream);
+      letter-spacing:-0.02em; margin-bottom:22px;
+    }
+    .landing-sub { font-size:17px; color:rgba(244,228,193,0.6); font-weight:300; line-height:1.6; margin-bottom:48px; }
+    .mode-cards { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:560px; width:100%; }
+    @media(max-width:520px){ .mode-cards { grid-template-columns:1fr; } }
+    .mode-card {
+      background:rgba(244,228,193,0.07); border:1.5px solid rgba(201,169,97,0.2);
+      border-radius:20px; padding:28px 24px; cursor:pointer; transition:all 0.25s;
+      text-align:left; position:relative; overflow:hidden;
+    }
+    .mode-card::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(201,169,97,0.1),transparent); opacity:0; transition:opacity 0.25s; }
+    .mode-card:hover { border-color:rgba(201,169,97,0.6); transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3); }
+    .mode-card:hover::after { opacity:1; }
+    .mode-card-icon { font-size:28px; margin-bottom:14px; }
+    .mode-card-title { font-family:'Cinzel',serif; font-size:14px; letter-spacing:0.18em; color:var(--gold); margin-bottom:8px; }
+    .mode-card-desc  { font-size:13px; color:rgba(244,228,193,0.5); line-height:1.6; }
 
-/* ── BENEFIT GRID ── */
-.ben-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:20px 0 28px}
-@media(max-width:480px){.ben-grid{grid-template-columns:1fr}}
-.ben-card{padding:17px;border-radius:14px;background:rgba(15,12,8,.05);border:1.5px solid rgba(15,12,8,.08);transition:border-color .2s}
-.ben-card:hover{border-color:rgba(201,169,97,.25)}
-.ben-num{font-family:'Cinzel',serif;font-size:10px;color:var(--gold);letter-spacing:.2em;margin-bottom:6px}
-.ben-t{font-size:13.5px;font-weight:500;color:var(--esp);margin-bottom:4px}
-.ben-d{font-size:12px;color:rgba(15,12,8,.45);line-height:1.55}
+    /* ── Benefit grid ── */
+    .benefit-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media(max-width:480px){ .benefit-grid { grid-template-columns:1fr; } }
+    .benefit-card {
+      padding:18px; border-radius:16px;
+      background:rgba(15,12,8,0.06); border:1.5px solid rgba(15,12,8,0.08);
+      transition:border-color 0.2s;
+    }
+    .benefit-card:hover { border-color:rgba(201,169,97,0.25); }
+    .benefit-num { font-family:'Cinzel',serif; font-size:11px; color:var(--gold); letter-spacing:0.2em; margin-bottom:6px; }
+    .benefit-t   { font-size:14px; font-weight:500; color:var(--espresso); margin-bottom:4px; }
+    .benefit-d   { font-size:12.5px; color:rgba(15,12,8,0.5); line-height:1.55; }
 
-/* ── REVIEW ── */
-.rev-section{background:rgba(15,12,8,.06);border:1.5px solid rgba(15,12,8,.08);border-radius:14px;padding:16px;margin-bottom:11px}
-.rev-title{font-size:10.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(15,12,8,.38);margin-bottom:9px}
-.rev-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(15,12,8,.06)}
-.rev-row:last-child{border-bottom:none}
-.rev-k{color:rgba(15,12,8,.45);flex-shrink:0}
-.rev-v{color:var(--esp);font-weight:500;text-align:right;word-break:break-word;max-width:65%}
+    /* ── Nav Buttons row ── */
+    .nav-row { display:flex; gap:12px; margin-top:32px; }
+    .nav-row .spacer { flex:1; }
 
-/* ── TERMS ── */
-.terms-box{background:rgba(15,12,8,.05);border:1.5px solid rgba(15,12,8,.08);border-radius:14px;padding:20px;max-height:280px;overflow-y:auto;font-size:13px;line-height:1.8;color:rgba(15,12,8,.7);margin-bottom:14px}
-.terms-box h4{font-weight:600;color:var(--esp);margin-bottom:5px;font-size:14px}
-.terms-box p{margin-bottom:10px}
+    /* ── grid 2 ── */
+    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media(max-width:480px){ .g2 { grid-template-columns:1fr; } }
 
-/* ── NAV ── */
-.nav-row{display:flex;gap:10px;margin-top:28px;align-items:center}
-.nav-spacer{flex:1}
-.btn-ghost{background:none;color:var(--esp);padding:13px 26px;border-radius:50px;font-size:13.5px;font-weight:500;border:2px solid rgba(15,12,8,.17);transition:background .2s}
-.btn-ghost:hover{background:rgba(15,12,8,.06)}
-.btn-primary{background:var(--esp);color:var(--cream);padding:14px 32px;border-radius:50px;font-size:14px;font-weight:500;letter-spacing:.05em;transition:transform .15s,background .2s,box-shadow .2s}
-.btn-primary:hover{background:#1e190f;transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.22)}
-.btn-primary:active{transform:translateY(0)}
-.btn-gold{background:var(--gold);color:var(--esp);padding:14px 32px;border-radius:50px;font-size:14px;font-weight:600;letter-spacing:.05em;transition:transform .15s,background .2s,box-shadow .2s}
-.btn-gold:hover{background:var(--goldl);transform:translateY(-1px);box-shadow:0 8px 22px rgba(201,169,97,.28)}
-.btn-disabled{opacity:.4;pointer-events:none!important;cursor:not-allowed!important}
+    /* ── Confirmation ── */
+    .confirm-circle {
+      width:88px; height:88px; border-radius:50%;
+      background:var(--gold); color:var(--espresso);
+      font-size:36px; display:flex; align-items:center; justify-content:center;
+      margin:0 auto 28px; box-shadow:0 12px 32px rgba(201,169,97,0.35);
+      animation: pulse 2s ease-in-out infinite;
+    }
 
-/* ── PRICE SUMMARY ── */
-.price-bar{background:var(--esp);border-radius:16px;padding:18px 20px;margin-bottom:22px}
-.price-row{display:flex;justify-content:space-between;font-size:12.5px;color:rgba(244,228,193,.5);margin-bottom:6px}
-.price-total-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(244,228,193,.1);padding-top:12px;margin-top:6px}
-.price-total-label{font-size:15px;font-weight:600;color:var(--cream)}
-.price-total-val{font-family:'Cinzel',serif;font-size:24px;font-weight:600;color:var(--gold)}
+    /* ── Horizontal scroller for dates ── */
+    .date-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .date-tag {
+      display:inline-flex; align-items:center; gap:8px;
+      background:var(--espresso); color:var(--cream);
+      border-radius:50px; padding:7px 14px; font-size:13px;
+    }
+    .date-tag button { background:none; color:rgba(244,228,193,0.6); font-size:16px; line-height:1; cursor:pointer; transition:color 0.15s; padding:0; }
+    .date-tag button:hover { color:var(--gold); }
 
-/* ── INFO BANNER ── */
-.info-banner{background:rgba(201,169,97,.09);border:1.5px dashed rgba(201,169,97,.28);border-radius:12px;padding:13px 15px;font-size:12.5px;color:rgba(15,12,8,.65);line-height:1.6}
-.info-banner strong{color:var(--esp)}
+    /* ── Doc item ── */
+    .doc-item {
+      padding:14px 16px; border-radius:14px; border:1.5px solid rgba(15,12,8,0.08);
+      background:rgba(15,12,8,0.04); cursor:pointer; transition:all 0.18s;
+      display:flex; align-items:flex-start; gap:12px;
+    }
+    .doc-item.selected { background:var(--espresso); border-color:var(--espresso); }
+    .doc-item-check { width:20px; height:20px; flex-shrink:0; border-radius:6px; display:flex; align-items:center; justify-content:center; border:1.5px solid rgba(15,12,8,0.2); background:white; margin-top:2px; transition:all 0.18s; }
+    .doc-item.selected .doc-item-check { background:var(--gold); border-color:var(--gold); }
+    .doc-item-title { font-size:14px; font-weight:500; transition:color 0.18s; }
+    .doc-item.selected .doc-item-title { color:var(--cream); }
+    .doc-item-desc  { font-size:12.5px; color:rgba(15,12,8,0.5); margin-top:2px; line-height:1.45; transition:color 0.18s; }
+    .doc-item.selected .doc-item-desc { color:rgba(244,228,193,0.6); }
+    .badge { font-size:10.5px; padding:2px 8px; border-radius:20px; font-weight:500; }
+    .badge-req { background:rgba(15,12,8,0.09); color:rgba(15,12,8,0.5); }
+    .badge-req-sel { background:rgba(201,169,97,0.2); color:var(--gold); }
 
-/* ── CONFIRM CIRCLE ── */
-.confirm-circle{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--goldl));display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:36px;color:var(--esp);animation:pulse 2.5s ease-in-out infinite;box-shadow:0 10px 28px rgba(201,169,97,.32)}
+    /* ── Event card ── */
+    .event-card {
+      padding:16px; border-radius:14px; border:1.5px solid rgba(15,12,8,0.08);
+      background:rgba(15,12,8,0.04); cursor:pointer; transition:all 0.18s;
+    }
+    .event-card.selected { background:var(--espresso); border-color:var(--espresso); color:var(--cream); }
 
-/* ── PAYMENT MODAL ── */
-#pay-modal-overlay{
-  position:fixed;inset:0;z-index:200;background:rgba(15,12,8,.88);
-  backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:20px;
-}
-#pay-modal-overlay.open{display:flex}
-.pay-modal{
-  background:var(--cream);border-radius:22px;padding:38px 34px;max-width:460px;width:100%;
-  box-shadow:0 40px 80px rgba(0,0,0,.5);animation:fadeUp .32s ease both;color:var(--esp);
-  position:relative;max-height:90vh;overflow-y:auto;
-}
-.pay-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:22px 22px 0 0}
-.pay-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(15,12,8,.08);color:rgba(15,12,8,.45);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s}
-.pay-close:hover{background:rgba(15,12,8,.15)}
-.pay-eye{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
-.pay-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--esp);margin-bottom:6px}
-.pay-sub{font-size:12.5px;color:rgba(15,12,8,.45);margin-bottom:22px;line-height:1.6}
-.whop-btn{
-  display:flex;align-items:center;justify-content:space-between;
-  width:100%;padding:17px 20px;border-radius:14px;
-  border:1.5px solid rgba(15,12,8,.1);background:rgba(15,12,8,.04);
-  color:var(--esp);font-size:14px;font-weight:500;
-  cursor:pointer;transition:all .2s;text-decoration:none;margin-bottom:10px;
-}
-.whop-btn:hover{background:var(--esp);color:var(--cream);border-color:var(--esp);transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.18)}
-.whop-btn-left{}
-.whop-btn-label{font-weight:600;font-size:14.5px;margin-bottom:2px}
-.whop-btn-sub{font-size:11.5px;opacity:.5}
-.whop-price{font-family:'Cinzel',serif;font-size:20px;font-weight:600;color:var(--gold);flex-shrink:0}
-.whop-btn:hover .whop-price{color:var(--goldl)}
-.pay-lock{font-size:11px;color:rgba(15,12,8,.32);text-align:center;margin-top:10px}
+    /* scrollable inner */
+    .scroll-inner { max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:4px; }
 
-/* ── SCROLL INNER ── */
-.scroll-inner{max-height:320px;overflow-y:auto;padding-right:3px}
+    /* ── Terms box ── */
+    .terms-box { background:rgba(15,12,8,0.05); border:1.5px solid rgba(15,12,8,0.08); border-radius:16px; padding:22px; max-height:320px; overflow-y:auto; font-size:13.5px; line-height:1.8; color:rgba(15,12,8,0.75); }
+    .terms-box h4 { font-weight:600; color:var(--espresso); margin-bottom:6px; font-size:15px; }
+    .terms-box p { margin-bottom:12px; }
 
-/* ── CONFETTI CANVAS ── */
-#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:9999;width:100%;height:100%}
-</style>
+    /* ── Mode switcher pills ── */
+    .mode-pills { display:flex; gap:0; background:rgba(15,12,8,0.07); border-radius:14px; padding:4px; }
+    .mode-pill  { flex:1; padding:10px; border-radius:10px; text-align:center; font-size:13.5px; font-weight:500; cursor:pointer; transition:all 0.2s; color:rgba(15,12,8,0.5); }
+    .mode-pill.active { background:var(--espresso); color:var(--cream); box-shadow:0 4px 12px rgba(0,0,0,0.18); }
+
+    /* ── Info banner ── */
+    .info-banner { background:rgba(201,169,97,0.1); border:1.5px dashed rgba(201,169,97,0.3); border-radius:14px; padding:14px 16px; font-size:13px; color:rgba(15,12,8,0.7); }
+    .info-banner strong { color:var(--espresso); }
+  </style>
 </head>
 <body>
 
 <canvas id="confetti-canvas"></canvas>
+<div id="root"></div>
 
-<!-- PAYMENT MODAL -->
-<div id="pay-modal-overlay">
-  <div class="pay-modal">
-    <button class="pay-close" id="pay-close-btn">×</button>
-    <div class="pay-eye" id="pay-eye">Venue Partnership</div>
-    <div class="pay-title">Choose Your Plan</div>
-    <div class="pay-sub">Select a plan below. You'll be taken to secure Whop checkout and redirected back here automatically after payment.</div>
-    <div id="pay-plans"><!-- filled by JS --></div>
-    <div class="pay-lock">🔒 Secured by Whop · All payments encrypted</div>
-  </div>
-</div>
-
-<!-- FIXED HEADER (hidden on landing) -->
-<div id="header" class="hidden">
-  <div class="hdr-inner">
-    <div class="hdr-row">
-      <div class="logo-wrap">
-        <img src="https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG" class="logo-img" alt="FA"/>
-        <div>
-          <div class="logo-name">FOREIGN AFFAIRS</div>
-          <div class="logo-sub" id="hdr-sub">Partner Portal</div>
-        </div>
-      </div>
-      <div style="text-align:right">
-        <div class="pct-label">Progress</div>
-        <div class="pct-val" id="pct-display">0%</div>
-      </div>
-    </div>
-    <div class="pbar-track"><div class="pbar-fill" id="pbar"></div></div>
-  </div>
-</div>
-
-<!-- LANDING PAGE -->
-<div id="landing">
-  <div class="land-bg" style="background-image:url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1600')"></div>
-  <div class="land-ov"></div>
-  <div class="land-content fade-up">
-    <div style="display:flex;align-items:center;justify-content:center;gap:13px;margin-bottom:32px">
-      <img src="https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG" style="width:50px;height:50px;border-radius:50%;border:2px solid var(--gold);object-fit:cover" alt="FA"/>
-    </div>
-    <div class="land-eye">Foreign Affairs · Partner Portal</div>
-    <h1 class="land-title">Join the<br>Movement</h1>
-    <p class="land-sub">A curated vendor event series transforming spaces<br>into thriving cultural destinations.</p>
-    <div class="mode-grid">
-      <div class="mode-card" onclick="startFlow('venue')">
-        <div class="mc-icon">🏛</div>
-        <div class="mc-title">Venue Partner</div>
-        <div class="mc-desc">List your space and host our professional vendor markets. Free to apply.</div>
-      </div>
-      <div class="mode-card" onclick="startFlow('vendor')">
-        <div class="mc-icon">🛍</div>
-        <div class="mc-title">Vendor</div>
-        <div class="mc-desc">Register your business and sell at our curated events across the country.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- APP WRAPPER -->
-<div id="app-wrap">
-  <div class="step-outer">
-    <div class="card fade-in" id="step-card"><!-- filled by JS --></div>
-  </div>
-</div>
-
-<script>
-/* ════════════════════════════════════════════════
-   CONFIG — replace placeholders with real values
-   ════════════════════════════════════════════════ */
-const CFG = {
-  workerUrl: 'https://form-worker.isiraglobal.workers.dev/',
-  logoUrl:   'https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG',
-  baseUrl:   'https://form.isira.club',
-  whop: {
-    plan199: 'https://whop.com/checkout/plan_6rFkbfVEg8FmN',
-    plan299: 'https://whop.com/checkout/plan_5WVL8YWVilo0N',
-    plan449: 'https://whop.com/checkout/plan_GJpm1F4tEuUS8',
+<script type="text/babel">
+// ─────────────────────────────────────────────
+// CONFIG — swap these with your real values
+// ─────────────────────────────────────────────
+const CONFIG = {
+  workerUrl: 'https://form-worker.isiraglobal.workers.dev/', // Your Cloudflare Worker URL
+  whopLinks: {
+    venue: 'https://whop.com/checkout/plan_6rFkbfVEg8FmN',
+    vendorEarly :   'https://whop.com/checkout/plan_6rFkbfVEg8FmN',
+    vendorStandard:'https://whop.com/checkout/plan_5WVL8YWVilo0N',
+    vendorPremium: 'https://whop.com/checkout/plan_GJpm1F4tEuUS8', // Update with your premium plan ID
   },
+  logoUrl: 'https://oyzujym7kiu7ewgf.public.blob.vercel-storage.com/FA1.PNG',
+  baseUrl: 'https://form.isira.club',
 };
 
-/* ════════════════════════════════════════════════
-   CONSTANTS
-   ════════════════════════════════════════════════ */
+// ─────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────
 const UPCOMING_EVENTS = [
-  {id:'nyc-0426',name:'NYC Spring Market',      date:'2026-04-26',location:'Brooklyn Warehouse',     price:449},
-  {id:'la-0503', name:'LA Artisan Fair',         date:'2026-05-03',location:'Downtown Arts District', price:449},
-  {id:'chi-0510',name:'Chicago Food & Art Fest', date:'2026-05-10',location:'West Loop Gallery',      price:299},
-  {id:'mia-0517',name:'Miami Cultural Pop-up',   date:'2026-05-17',location:'Wynwood Lot',            price:199},
-  {id:'atl-0524',name:"Atlanta Maker's Market",  date:'2026-05-24',location:'East Atlanta Village',   price:199},
+  { id:'nyc-0426', name:'NYC Spring Market',        date:'2026-04-26', location:'Brooklyn Warehouse',       price:500 },
+  { id:'la-0503',  name:'LA Artisan Fair',           date:'2026-05-03', location:'Downtown Arts District',   price:500 },
+  { id:'chi-0510', name:'Chicago Food & Art Fest',   date:'2026-05-10', location:'West Loop Gallery',        price:200 },
+  { id:'mia-0517', name:'Miami Cultural Pop-up',     date:'2026-05-17', location:'Wynwood Lot',              price:200 },
+  { id:'atl-0524', name:"Atlanta Maker's Market",    date:'2026-05-24', location:'East Atlanta Village',     price:200 },
 ];
 const BOOTH_SIZES = [
-  {value:'standard',label:'Standard 10×10 ft', sub:'Included',price:0},
-  {value:'double',  label:'Double 10×20 ft',   sub:'+$100',   price:100},
-  {value:'corner',  label:'Corner Premium',    sub:'+$50',    price:50},
+  { value:'standard', label:'Standard 10×10 ft', sub:'Included',   price:0   },
+  { value:'double',   label:'Double 10×20 ft',   sub:'+$100',       price:100 },
+  { value:'corner',   label:'Corner Premium',    sub:'+$50',        price:50  },
 ];
-const EVENT_TIMES  = ['Morning (8am–12pm)','Afternoon (12pm–5pm)','Evening (5pm–10pm)','Late Night (10pm–2am)','Weekend All Day','Flexible'];
-const VENUE_TYPES  = ['Warehouse/Industrial','Retail Space','Restaurant/Bar','Art Gallery','Outdoor Lot','Co-working Space','Hotel/Event Space','Rooftop','Other'];
-const CATEGORIES   = ['Food & Beverage','Art & Handmade Goods','Vintage & Thrift','Jewelry & Accessories','Home & Lifestyle','Health & Wellness','Tech & Innovation','Cultural & Educational','Other'];
-const WHOP_PLANS = [
-  {key:'plan199',label:'Starter',      sub:'Essential booth · single event',    price:'$199'},
-  {key:'plan299',label:'Growth',       sub:'Double space + priority placement',  price:'$299'},
-  {key:'plan449',label:'Premium',      sub:'Corner booth + full marketing suite',price:'$449'},
-];
+const EVENT_TIMES = ['Morning (8am–12pm)','Afternoon (12pm–5pm)','Evening (5pm–10pm)','Late Night (10pm–2am)','Weekend All Day','Flexible'];
+const VENUE_TYPES = ['Warehouse/Industrial','Retail Space','Restaurant/Bar','Art Gallery','Outdoor Lot','Co-working Space','Hotel/Event Space','Rooftop','Other'];
+const CATEGORIES  = ['Food & Beverage','Art & Handmade Goods','Vintage & Thrift','Jewelry & Accessories','Home & Lifestyle','Health & Wellness','Tech & Innovation','Cultural & Educational','Other'];
 const DOCS = [
-  {key:'coi',       label:'Certificate of Insurance (COI)',       desc:'GL $1M–$2M, Foreign Affairs LLC as additional insured',required:true},
-  {key:'occupancy', label:'Certificate of Occupancy',             desc:'Proof of zoning for public assembly/events',            required:true},
-  {key:'fire',      label:'Fire Marshal Permit',                  desc:'Max occupancy and egress compliance',                   required:true},
-  {key:'ada',       label:'ADA Compliance Documentation',         desc:'Accessibility features verification',                   required:true},
-  {key:'business',  label:'Current Business License',             desc:'City/state business operation license',                 required:true},
-  {key:'floorplan', label:'Emergency Exit / Floor Plan',          desc:'Marked evacuation routes',                              required:true},
-  {key:'liquor',    label:'Liquor License (if applicable)',       desc:'State-specific alcohol service permit',                 required:false},
-  {key:'food',      label:'Food Service License (if applicable)', desc:'If kitchen/food prep on-site',                         required:false},
-  {key:'seller',    label:"Seller's Permit",                      desc:'State tax collection authorization',                    required:false},
-  {key:'noise',     label:'Noise/Orchestra Permit',               desc:'For music/amplified sound events',                     required:false},
+  { key:'certificateOfInsurance', label:'Certificate of Insurance (COI)',       desc:'General Liability $1M–$2M, Foreign Affairs LLC named additional insured', required:true  },
+  { key:'occupancyPermit',        label:'Certificate of Occupancy',             desc:'Proof of zoning for public assembly/events',                              required:true  },
+  { key:'fireMarshalPermit',      label:'Fire Marshal Permit',                  desc:'Max occupancy and egress compliance',                                     required:true  },
+  { key:'adaCompliance',          label:'ADA Compliance Documentation',         desc:'Accessibility features verification',                                     required:true  },
+  { key:'businessLicense',        label:'Current Business License',             desc:'City/state business operation license',                                   required:true  },
+  { key:'floorPlan',              label:'Emergency Exit / Floor Plan',          desc:'Marked evacuation routes',                                                required:true  },
+  { key:'liquorLicense',          label:'Liquor License (if applicable)',       desc:'State-specific alcohol service permit',                                   required:false },
+  { key:'foodServiceLicense',     label:'Food Service License (if applicable)', desc:'If kitchen/food prep on-site',                                            required:false },
+  { key:'sellersPermit',          label:"Seller's Permit",                      desc:'State tax collection authorization',                                      required:false },
+  { key:'noisePermit',            label:'Noise/Orchestra Permit',               desc:'For music/amplified sound events',                                        required:false },
 ];
 
-/* ════════════════════════════════════════════════
-   STATE
-   ════════════════════════════════════════════════ */
-let MODE = null;      // 'venue' | 'vendor'
-let STEP = 0;
-let TOTAL_STEPS = 0;
-let SUB_ID = '';
-
-// Venue state
-let V = {};
-// Vendor state
-let VD = {};
-
-function venueInit() {
-  return {
-    venueName:'',venueType:'',venueTypeOther:'',
-    address:'',city:'',state:'',zip:'',
-    squareFootage:'',capacity:'',indoorOutdoor:'',parkingSpaces:'',
-    powerAccess:false,loadingDock:false,
-    hasStage:false,hasDanceFloor:false,hasDJBooth:false,
-    hasEntertainment:false,hasSoundSystem:false,hasLighting:false,
-    docs:{coi:false,occupancy:false,fire:false,ada:false,business:false,floorplan:false,liquor:false,food:false,seller:false,noise:false},
-    availableDates:[],preferredEventTimes:[],preferredEventType:'',
-    businessSocialMedia:'',personalSocialMedia:'',
-    firstName:'',lastName:'',email:'',phone:'',jobPosition:'',isDecisionMaker:false,businessName:'',
-    notes:'',
-  };
-}
-function vendorInit() {
-  return {
-    businessName:'',category:'',categoryOther:'',description:'',website:'',instagram:'',referralCode:'',
-    registrationType:'specific',selectedEvents:[],generalPreferences:[],
-    boothSize:'standard',needsPower:false,needsTable:true,specialRequirements:'',
-    firstName:'',lastName:'',email:'',phone:'',agreeToTerms:false,
-  };
-}
-
-/* ════════════════════════════════════════════════
-   HELPERS
-   ════════════════════════════════════════════════ */
-const fmtDate = s => { if(!s) return ''; const [y,m,d]=s.split('-'); return `${m}/${d}/${y}`; };
-const genId   = p  => `${p}-${Math.random().toString(36).substr(2,9).toUpperCase()}`;
-const esc     = s  => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-function el(id){ return document.getElementById(id); }
-function setHTML(id, html){ const e=el(id); if(e) e.innerHTML=html; }
-function val(id){ const e=el(id); return e?e.value.trim():''; }
-function checked(id){ const e=el(id); return e?e.checked:false; }
-
-/* ════════════════════════════════════════════════
-   CONFETTI
-   ════════════════════════════════════════════════ */
-let _raf=null;
-function fireConfetti(ox,oy){
-  const cv=el('confetti-canvas');
-  const ctx=cv.getContext('2d');
-  cv.width=window.innerWidth; cv.height=window.innerHeight;
-  const cols=['#c9a961','#f4e4c1','#d4af37','#fff','#ffd700'];
-  const pts=Array.from({length:130},()=>({
-    x:ox||cv.width/2, y:oy||cv.height/3,
-    vx:(Math.random()-.5)*24, vy:(Math.random()-.5)*20-7,
-    col:cols[Math.floor(Math.random()*cols.length)],
-    sz:Math.random()*9+3, rot:Math.random()*360,
-    rs:(Math.random()-.5)*13, a:1,
+// ─────────────────────────────────────────────
+// CONFETTI
+// ─────────────────────────────────────────────
+function fireConfetti(originX, originY) {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors  = ['#c9a961','#f4e4c1','#d4af37','#ffffff','#ffd700'];
+  const particles = Array.from({length:120}, () => ({
+    x: originX || canvas.width/2, y: originY || canvas.height/3,
+    vx:(Math.random()-0.5)*22, vy:(Math.random()-0.5)*18-6,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    size:Math.random()*9+3, rotation:Math.random()*360,
+    rotSpeed:(Math.random()-0.5)*12, alpha:1,
   }));
-  cancelAnimationFrame(_raf);
-  function loop(){
-    ctx.clearRect(0,0,cv.width,cv.height);
-    let alive=false;
-    pts.forEach(p=>{
-      p.x+=p.vx; p.y+=p.vy; p.vy+=.33; p.vx*=.986; p.rot+=p.rs; p.a-=.013;
-      if(p.a>0){alive=true;ctx.save();ctx.globalAlpha=Math.max(0,p.a);ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.col;ctx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz);ctx.restore();}
+  let raf;
+  const loop = () => {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.32; p.vx*=0.985; p.rotation+=p.rotSpeed; p.alpha-=0.012;
+      if(p.alpha>0){ alive=true; ctx.save(); ctx.globalAlpha=Math.max(0,p.alpha); ctx.translate(p.x,p.y); ctx.rotate(p.rotation*Math.PI/180); ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size); ctx.restore(); }
     });
-    if(alive)_raf=requestAnimationFrame(loop);else ctx.clearRect(0,0,cv.width,cv.height);
-  }
-  loop();
+    if(alive) raf=requestAnimationFrame(loop);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  };
+  cancelAnimationFrame(raf); loop();
 }
 
-/* ════════════════════════════════════════════════
-   PROGRESS
-   ════════════════════════════════════════════════ */
-function updateProgress(){
-  const pct = TOTAL_STEPS>1 ? Math.round((STEP/(TOTAL_STEPS-1))*100) : 0;
-  const fill=el('pbar'); if(fill) fill.style.width=pct+'%';
-  const disp=el('pct-display'); if(disp) disp.textContent=pct+'%';
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+const fmt = d => { if(!d) return ''; const [y,m,day]=d.split('-'); return `${m}/${day}/${y}`; };
+const toggle = (arr,v) => arr.includes(v) ? arr.filter(x=>x!==v) : [...arr,v];
+const genId  = prefix => `${prefix}-${Math.random().toString(36).substr(2,9).toUpperCase()}`;
+
+// Save submission to Worker (fire & forget, never blocks UX)
+async function sendToWorker(payload) {
+  try {
+    await fetch(`${CONFIG.workerUrl}/submit`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+    });
+  } catch(e) { console.warn('Worker unreachable – data logged locally only', e); }
 }
 
-/* ════════════════════════════════════════════════
-   FLOW CONTROL
-   ════════════════════════════════════════════════ */
-function startFlow(mode){
-  MODE=mode;
-  STEP=0;
-  if(mode==='venue'){ V=venueInit(); TOTAL_STEPS=8; }
-  else              { VD=vendorInit(); TOTAL_STEPS=7; }
-  SUB_ID=genId(mode==='venue'?'FA-VENUE':'FA-VENDOR');
-  el('landing').classList.add('hidden');
-  const hw=el('app-wrap'); hw.style.display='flex'; hw.classList.add('visible');
-  const hdr=el('header'); hdr.classList.remove('hidden');
-  el('hdr-sub').textContent=mode==='venue'?'Venue Partnership':'Vendor Registration';
-  updateProgress();
-  renderStep();
-  window.scrollTo(0,0);
-}
+// ─────────────────────────────────────────────
+// PAYMENT MODAL
+// ─────────────────────────────────────────────
+function PaymentModal({ mode, vendorPrice, submissionId, onClose }) {
+  const isVenue  = mode === 'venue';
+  const encodedId = encodeURIComponent(submissionId);
+  const redirect  = `${CONFIG.baseUrl}/thank-you.html?id=${encodedId}&mode=${mode}&plan=${vendorPrice}`;
 
-function goBack(){
-  if(STEP===0){ returnToLanding(); return; }
-  STEP--;
-  updateProgress();
-  renderStep();
-  window.scrollTo(0,0);
-}
+  const plans = isVenue
+    ? [{ label:'Venue Partner Application', sub:'Free review – no charge', price:'Free', link:`${CONFIG.whopLinks.venue}?redirect=${encodeURIComponent(redirect)}` }]
+    : vendorPrice === 199
+    ? [{ label:'Early Bird Registration', sub:'General pool — Best value', price:'$199', link:`${CONFIG.whopLinks.vendorEarly}?redirect=${encodeURIComponent(redirect)}&plan=199` }]
+    : vendorPrice === 299
+    ? [{ label:'Standard Registration', sub:'Specific event slot confirmed', price:'$299', link:`${CONFIG.whopLinks.vendorStandard}?redirect=${encodeURIComponent(redirect)}&plan=299` }]
+    : [{ label:'Premium Registration', sub:'Multiple events — Maximum exposure', price:'$449', link:`${CONFIG.whopLinks.vendorPremium}?redirect=${encodeURIComponent(redirect)}&plan=449` }];
 
-function goNext(){
-  saveStepData();
-  if(STEP<TOTAL_STEPS-1){ STEP++; updateProgress(); renderStep(); window.scrollTo(0,0); fireConfetti(window.innerWidth/2,80); }
-}
-
-function returnToLanding(){
-  MODE=null; STEP=0;
-  el('landing').classList.remove('hidden');
-  const hw=el('app-wrap'); hw.style.display='none'; hw.classList.remove('visible');
-  el('header').classList.add('hidden');
-  window.scrollTo(0,0);
-}
-
-/* ════════════════════════════════════════════════
-   SAVE STEP DATA FROM DOM → STATE
-   ════════════════════════════════════════════════ */
-function saveStepData(){
-  if(MODE==='venue') saveVenueStep();
-  else               saveVendorStep();
-}
-
-function saveVenueStep(){
-  if(STEP===1){
-    V.venueName=val('venueName'); V.venueType=val('venueType'); V.venueTypeOther=val('venueTypeOther');
-    V.address=val('address'); V.city=val('city'); V.state=val('state'); V.zip=val('zip');
-  }
-  if(STEP===2){
-    V.squareFootage=val('squareFootage'); V.capacity=val('capacity'); V.parkingSpaces=val('parkingSpaces');
-    // indoorOutdoor, powerAccess, loadingDock, amenities already bound via onclick
-  }
-  if(STEP===4){
-    V.preferredEventType=val('preferredEventType');
-    V.businessSocialMedia=val('businessSocialMedia'); V.personalSocialMedia=val('personalSocialMedia');
-  }
-  if(STEP===5){
-    V.firstName=val('firstName'); V.lastName=val('lastName'); V.jobPosition=val('jobPosition');
-    V.email=val('email'); V.phone=val('phone'); V.businessName=val('businessName');
-  }
-  if(STEP===6){ V.notes=val('notes'); }
-}
-
-function saveVendorStep(){
-  if(STEP===1){
-    VD.businessName=val('businessName'); VD.category=val('category'); VD.categoryOther=val('categoryOther');
-    VD.description=val('description'); VD.website=val('website'); VD.instagram=val('instagram'); VD.referralCode=val('referralCode');
-  }
-  if(STEP===3){
-    VD.specialRequirements=val('specialRequirements');
-  }
-  if(STEP===5){
-    VD.firstName=val('firstName'); VD.lastName=val('lastName');
-    VD.email=val('email'); VD.phone=val('phone');
-  }
-}
-
-/* ════════════════════════════════════════════════
-   VENDOR PRICE CALC
-   ════════════════════════════════════════════════ */
-function calcVendorPrice(){
-  let base=449;
-  if(VD.registrationType==='specific'&&VD.selectedEvents.length>0){
-    base=Math.max(...VD.selectedEvents.map(id=>UPCOMING_EVENTS.find(e=>e.id===id)?.price||449));
-  } else if(VD.registrationType==='general'){
-    base=199;
-  }
-  return base+(BOOTH_SIZES.find(b=>b.value===VD.boothSize)?.price||0);
-}
-
-/* ════════════════════════════════════════════════
-   RENDER STEP
-   ════════════════════════════════════════════════ */
-function renderStep(){
-  const card=el('step-card');
-  card.className='card fade-in';
-  // Force reflow for animation replay
-  void card.offsetWidth;
-  if(MODE==='venue') card.innerHTML=renderVenueStep(STEP);
-  else               card.innerHTML=renderVendorStep(STEP);
-  bindStepEvents();
-}
-
-/* ════════════════════════════════════════════════
-   VENUE STEPS HTML
-   ════════════════════════════════════════════════ */
-function renderVenueStep(s){
-  if(s===0) return renderVenueWelcome();
-  if(s===1) return renderVenueBasics();
-  if(s===2) return renderVenueSpecs();
-  if(s===3) return renderVenueDocs();
-  if(s===4) return renderVenueAvailability();
-  if(s===5) return renderVenueContact();
-  if(s===6) return renderVenueReview();
-  if(s===7) return renderVenueConfirm();
-  return '';
-}
-
-function renderVenueWelcome(){
-  const bens=[
-    {t:'High Volume Traffic',d:'100+ engaged attendees per event, creating energy in your space.'},
-    {t:'Digital Amplification',d:'High-engagement content, viral social moments, platform growth.'},
-    {t:'Business Growth',d:'New customers discovering your venue, driving future bookings.'},
-    {t:'Community Value',d:'Intentional use of space supporting local vendors and culture.'},
-    {t:'Professional Production',d:'Full-service management — marketing, setup, ops, breakdown.'},
-    {t:'Free Content Creation',d:'Professional photography & video of your space, yours to keep.'},
-  ];
-  return `
-    <div style="text-align:center;margin-bottom:28px">
-      <div class="s-eye" style="margin-bottom:8px">Venue Partnership</div>
-      <div class="s-title" style="font-size:clamp(28px,4vw,40px)">Partner with Foreign Affairs</div>
-      <p style="font-size:14px;color:rgba(15,12,8,.45);max-width:420px;margin:8px auto 0;line-height:1.7">Transform your space into a vibrant cultural destination with our professional vendor event series.</p>
-    </div>
-    <div class="ben-grid">
-      ${bens.map((b,i)=>`<div class="ben-card"><div class="ben-num">0${i+1}</div><div class="ben-t">${b.t}</div><div class="ben-d">${b.d}</div></div>`).join('')}
-    </div>
-    <div style="display:flex;gap:10px;justify-content:center">
-      <button class="btn-ghost" onclick="returnToLanding()">← Back</button>
-      <button class="btn-primary" onclick="goNext()" style="padding:14px 40px">Start Application →</button>
-    </div>`;
-}
-
-function renderVenueBasics(){
-  return `
-    <div class="s-eye">Step 01</div>
-    <div class="s-title">Venue Basics</div>
-    <div class="s-sub">Tell us about your space</div>
-    <div class="field"><label class="lbl">Venue Name</label><input class="inp" id="venueName" value="${esc(V.venueName)}" placeholder="e.g. The Market Hall"/></div>
-    <div class="field">
-      <label class="lbl">Venue Type</label>
-      <select class="inp" id="venueType" onchange="renderVenueTypeOther()">
-        <option value="">Select type…</option>
-        ${VENUE_TYPES.map(t=>`<option value="${t}"${V.venueType===t?' selected':''}>${t}</option>`).join('')}
-      </select>
-    </div>
-    <div class="field" id="venueTypeOtherWrap" style="${V.venueType==='Other'?'':'display:none'}">
-      <label class="lbl">Please specify</label>
-      <input class="inp" id="venueTypeOther" value="${esc(V.venueTypeOther)}" placeholder="Describe your venue type"/>
-    </div>
-    <div class="g2">
-      <div class="field"><label class="lbl">City</label><input class="inp" id="city" value="${esc(V.city)}" placeholder="New York"/></div>
-      <div class="field"><label class="lbl">State</label><input class="inp" id="state" value="${esc(V.state)}" placeholder="NY"/></div>
-    </div>
-    <div class="field"><label class="lbl">Street Address</label><input class="inp" id="address" value="${esc(V.address)}" placeholder="123 Main Street"/></div>
-    <div class="field"><label class="lbl">ZIP Code</label><input class="inp" id="zip" value="${esc(V.zip)}" placeholder="10001" style="max-width:200px"/></div>
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-primary" onclick="goNext()">Continue →</button>
-    </div>`;
-}
-
-function renderVenueSpecs(){
-  const amens=[
-    {k:'hasStage',l:'Stage'},{k:'hasDanceFloor',l:'Dance Floor'},{k:'hasDJBooth',l:'DJ Booth'},
-    {k:'hasEntertainment',l:'Entertainment License'},{k:'hasSoundSystem',l:'Sound System'},{k:'hasLighting',l:'Lighting System'},
-  ];
-  const spaceTypes=['Indoor Only','Outdoor Only','Indoor/Outdoor','Rooftop'];
-  return `
-    <div class="s-eye">Step 02</div>
-    <div class="s-title">Space Specifications</div>
-    <div class="s-sub">Help us match the right event to your space</div>
-    <div class="g2">
-      <div class="field"><label class="lbl">Square Footage</label><input class="inp" id="squareFootage" type="number" value="${esc(V.squareFootage)}" placeholder="5000"/></div>
-      <div class="field"><label class="lbl">Max Capacity</label><input class="inp" id="capacity" type="number" value="${esc(V.capacity)}" placeholder="200"/></div>
-    </div>
-    <div class="field">
-      <label class="lbl">Space Type</label>
-      <div class="chip-grid">
-        ${spaceTypes.map(t=>`<button class="chip${V.indoorOutdoor===t?' on':''}" onclick="setIndoorOutdoor('${t}')" id="io-${t.replace(/\//g,'-').replace(/ /g,'-')}">${t}</button>`).join('')}
-      </div>
-    </div>
-    <div class="field"><label class="lbl">Parking Spaces Available</label><input class="inp" id="parkingSpaces" type="number" value="${esc(V.parkingSpaces)}" placeholder="50" style="max-width:200px"/></div>
-    <div onclick="toggleVBool('powerAccess')" class="chk-row">
-      <div class="chk-box${V.powerAccess?' on':''}" id="chk-powerAccess">${V.powerAccess?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
-      <div><div class="chk-title">220V Power Access</div><div class="chk-sub">Suitable for food vendors and lighting</div></div>
-    </div>
-    <div onclick="toggleVBool('loadingDock')" class="chk-row">
-      <div class="chk-box${V.loadingDock?' on':''}" id="chk-loadingDock">${V.loadingDock?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
-      <div><div class="chk-title">Loading Dock / Access</div><div class="chk-sub">Easy load-in for vendor setups</div></div>
-    </div>
-    <div class="field" style="margin-top:16px">
-      <label class="lbl">Venue Amenities</label>
-      <div class="chip-grid">
-        ${amens.map(a=>`<button class="chip${V[a.k]?' on':''}" id="amen-${a.k}" onclick="toggleVBool('${a.k}')">${a.l}</button>`).join('')}
-      </div>
-    </div>
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-primary" onclick="goNext()">Continue →</button>
-    </div>`;
-}
-
-function renderVenueDocs(){
-  return `
-    <div class="s-eye">Step 03</div>
-    <div class="s-title">Legal & Compliance</div>
-    <div class="s-sub">Check all documents you currently have available</div>
-    <div class="scroll-inner" style="max-height:360px">
-      ${DOCS.map(d=>`
-        <div class="doc-item${V.docs[d.key]?' on':''}" id="doc-${d.key}" onclick="toggleVDoc('${d.key}')">
-          <div class="doc-chk">${V.docs[d.key]?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
+  return (
+    <div className="payment-modal-overlay" onClick={e => e.target===e.currentTarget && onClose()}>
+      <div className="payment-modal">
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:24}}>
           <div>
-            <div class="doc-name">${d.label}${d.required?`<span class="doc-req">Required</span>`:''}</div>
-            <div class="doc-desc">${d.desc}</div>
+            <div style={{fontFamily:"'Cinzel',serif",fontSize:11,letterSpacing:'0.3em',color:'var(--gold)',textTransform:'uppercase',marginBottom:4}}>
+              {isVenue ? 'Venue Partnership' : 'Vendor Registration'}
+            </div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:300,color:'var(--espresso)'}}>
+              Complete Payment
+            </div>
           </div>
-        </div>`).join('')}
-    </div>
-    <div class="info-banner" style="margin-top:14px"><strong>Document Upload:</strong> You'll receive a secure email link to upload scanned copies after initial review. Physical verification during site visit.</div>
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-primary" onclick="goNext()">Continue →</button>
-    </div>`;
-}
+          <button onClick={onClose} style={{background:'rgba(15,12,8,0.08)',border:'none',width:36,height:36,borderRadius:'50%',cursor:'pointer',fontSize:18,color:'rgba(15,12,8,0.5)',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
+        </div>
 
-function renderVenueAvailability(){
-  return `
-    <div class="s-eye">Step 04</div>
-    <div class="s-title">Availability & Presence</div>
-    <div class="s-sub">Scheduling and social presence</div>
-    <div class="date-section">
-      <label class="lbl">Preferred Event Dates</label>
-      <div class="date-input-row">
-        <input type="date" class="inp" id="dateInput"/>
-        <button class="add-date-btn" onclick="addVenueDate()">+ Add Date</button>
-      </div>
-      <div class="date-tags" id="date-tags">${renderDateTags()}</div>
-    </div>
-    <div class="field">
-      <label class="lbl">Preferred Event Times</label>
-      <div class="chip-grid">
-        ${EVENT_TIMES.map(t=>`<button class="chip${V.preferredEventTimes.includes(t)?' on':''}" id="evt-${t.replace(/[^a-z]/gi,'_')}" onclick="toggleVTime('${t}')">${t}</button>`).join('')}
+        <p style={{fontSize:13,color:'rgba(15,12,8,0.5)',marginBottom:20,lineHeight:1.6}}>
+          Click below to proceed to secure checkout via Whop. Your application will be confirmed once payment clears.
+        </p>
+
+        {plans.map((plan,i) => (
+          <a key={i} href={plan.link} target="_blank" rel="noopener noreferrer" className="whop-btn">
+            <div>
+              <div style={{fontWeight:600,fontSize:15,marginBottom:3}}>{plan.label}</div>
+              <div style={{fontSize:12,color:'rgba(15,12,8,0.45)'}}>{plan.sub}</div>
+            </div>
+            <div className="price-tag">{plan.price}</div>
+          </a>
+        ))}
+
+        <p style={{fontSize:11,color:'rgba(15,12,8,0.35)',textAlign:'center',marginTop:12}}>
+          🔒 Secured by Whop · PCI DSS Compliant · All payments encrypted
+        </p>
       </div>
     </div>
-    <div class="field">
-      <label class="lbl">Preferred Event Types (optional)</label>
-      <textarea class="inp" id="preferredEventType" style="height:80px;resize:none" placeholder="e.g. art markets, food festivals, networking events">${esc(V.preferredEventType)}</textarea>
-    </div>
-    <div class="g2">
-      <div class="field"><label class="lbl">Business Social Media</label><input class="inp" id="businessSocialMedia" value="${esc(V.businessSocialMedia)}" placeholder="@venuehandle"/></div>
-      <div class="field"><label class="lbl">Personal Social Media</label><input class="inp" id="personalSocialMedia" value="${esc(V.personalSocialMedia)}" placeholder="@yourhandle"/></div>
-    </div>
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-primary" onclick="goNext()">Continue →</button>
-    </div>`;
+  );
 }
 
-function renderDateTags(){
-  if(!V.availableDates.length) return '<span style="font-size:12.5px;color:rgba(15,12,8,.35);margin-top:4px">No dates added yet</span>';
-  return V.availableDates.map((d,i)=>`
-    <span class="date-tag">${fmtDate(d)}
-      <button class="date-tag-rm" onclick="removeVenueDate(${i})">×</button>
-    </span>`).join('');
-}
-
-function addVenueDate(){
-  const inp=el('dateInput');
-  const val=inp.value;
-  if(!val) return;
-  // Prevent duplicate dates
-  if(V.availableDates.includes(val)){
-    inp.value='';
-    return;
-  }
-  V.availableDates=[...V.availableDates,val];
-  inp.value='';
-  el('date-tags').innerHTML=renderDateTags();
-  bindDateTagEvents();
-}
-
-function removeVenueDate(i){
-  V.availableDates=V.availableDates.filter((_,j)=>j!==i);
-  el('date-tags').innerHTML=renderDateTags();
-  bindDateTagEvents();
-}
-
-function renderVenueContact(){
-  return `
-    <div class="s-eye">Step 05</div>
-    <div class="s-title">Contact Information</div>
-    <div class="s-sub">Primary contact for venue partnership</div>
-    <div class="g2">
-      <div class="field"><label class="lbl">First Name</label><input class="inp" id="firstName" value="${esc(V.firstName)}" placeholder="Jane"/></div>
-      <div class="field"><label class="lbl">Last Name</label><input class="inp" id="lastName" value="${esc(V.lastName)}" placeholder="Smith"/></div>
-    </div>
-    <div class="field"><label class="lbl">Job Position</label><input class="inp" id="jobPosition" value="${esc(V.jobPosition)}" placeholder="General Manager, Owner, Events Coordinator"/></div>
-    <div class="field"><label class="lbl">Email Address</label><input class="inp" id="email" type="email" value="${esc(V.email)}" placeholder="jane@venue.com"/></div>
-    <div class="field"><label class="lbl">Phone Number</label><input class="inp" id="phone" type="tel" value="${esc(V.phone)}" placeholder="(555) 123-4567"/></div>
-    <div class="field"><label class="lbl">Business Legal Name</label><input class="inp" id="businessName" value="${esc(V.businessName)}" placeholder="Smith Venue Properties LLC"/></div>
-    <div onclick="toggleVBool('isDecisionMaker')" class="chk-row">
-      <div class="chk-box${V.isDecisionMaker?' on':''}" id="chk-isDecisionMaker">${V.isDecisionMaker?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
-      <div><div class="chk-title">Primary Decision Maker</div><div class="chk-sub">I have authority to approve events at this venue</div></div>
-    </div>
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-primary" onclick="goNext()">Continue →</button>
-    </div>`;
-}
-
-function renderVenueReview(){
-  const docsOn=Object.entries(V.docs).filter(([,v])=>v).map(([k])=>DOCS.find(d=>d.key===k)?.label||k).join(', ')||'None';
-  return `
-    <div class="s-eye">Step 06</div>
-    <div class="s-title">Review Application</div>
-    <div class="s-sub">Confirm your details before submitting</div>
-    <div class="scroll-inner" style="max-height:340px">
-      ${revSection('Venue Details',[['Name',V.venueName],['Type',V.venueType==='Other'?V.venueTypeOther:V.venueType],['Address',`${V.address}, ${V.city}, ${V.state} ${V.zip}`]])}
-      ${revSection('Specifications',[['Sq Ft',V.squareFootage],['Capacity',V.capacity],['Space',V.indoorOutdoor],['Parking',V.parkingSpaces],['Amenities',[V.hasStage&&'Stage',V.hasDanceFloor&&'Dance Floor',V.hasDJBooth&&'DJ Booth',V.hasSoundSystem&&'Sound',V.hasLighting&&'Lighting',V.hasEntertainment&&'Ent. License'].filter(Boolean).join(', ')||'None']])}
-      ${revSection('Legal Documents',[['Confirmed',docsOn]])}
-      ${revSection('Availability',[['Dates',V.availableDates.map(fmtDate).join(', ')||'None'],['Times',V.preferredEventTimes.join(', ')||'None'],['Event Types',V.preferredEventType||'—']])}
-      ${revSection('Social Media',[['Business',V.businessSocialMedia||'—'],['Personal',V.personalSocialMedia||'—']])}
-      ${revSection('Contact',[['Name',`${V.firstName} ${V.lastName}`],['Position',V.jobPosition],['Email',V.email],['Phone',V.phone],['Decision Maker',V.isDecisionMaker?'Yes':'No']])}
-    </div>
-    <div class="field" style="margin-top:16px"><label class="lbl">Additional Notes (optional)</label><textarea class="inp" id="notes" style="height:76px;resize:none" placeholder="Any special requirements or questions…">${esc(V.notes)}</textarea></div>
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-gold" onclick="handleVenueSubmit()">Submit & Choose Plan →</button>
-    </div>`;
-}
-
-function renderVenueConfirm(){
-  return `
-    <div style="text-align:center;padding:16px 0">
-      <div class="confirm-circle">✓</div>
-      <div class="s-title" style="text-align:center;margin-bottom:10px">Application Submitted</div>
-      <p style="color:rgba(15,12,8,.45);font-size:14.5px;max-width:360px;margin:0 auto 28px;line-height:1.7">Your venue is under manual review. You'll hear back within 24–48 hours after completing your plan selection.</p>
-      <div style="background:rgba(15,12,8,.05);border-radius:16px;padding:22px;border:1.5px solid rgba(15,12,8,.08);text-align:left;margin-bottom:22px">
-        <div style="font-weight:600;font-size:15px;margin-bottom:5px">📞 Schedule Your Call</div>
-        <div style="font-size:13px;color:rgba(15,12,8,.45);margin-bottom:14px">15-minute venue assessment with our team</div>
-        <a href="https://calendly.com/foreignaffairs-venue/intro" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;background:var(--esp);color:var(--cream);padding:14px;border-radius:12px;font-weight:600;text-decoration:none;font-size:14.5px">Schedule Phone Call →</a>
+// ─────────────────────────────────────────────
+// HEADER
+// ─────────────────────────────────────────────
+function Header({ progress, mode }) {
+  return (
+    <header className="header">
+      <div className="header-inner">
+        <div className="logo-row">
+          <div style={{display:'flex',alignItems:'center',gap:12}}>
+            <img src={CONFIG.logoUrl} alt="FA" className="logo-img" />
+            <div>
+              <div className="logo-text">FOREIGN AFFAIRS</div>
+              <div className="logo-sub">{mode==='venue' ? 'Venue Partnership' : 'Vendor Registration'}</div>
+            </div>
+          </div>
+          <div style={{textAlign:'right'}}>
+            <div style={{fontSize:10,color:'rgba(244,228,193,0.35)',letterSpacing:'0.2em',textTransform:'uppercase'}}>Progress</div>
+            <div style={{fontFamily:"'Cinzel',serif",fontSize:15,color:'var(--gold)',fontWeight:600}}>{Math.round(progress)}%</div>
+          </div>
+        </div>
+        <div className="progress-wrap">
+          <div className="progress-fill" style={{width:`${progress}%`}} />
+        </div>
       </div>
-      <button onclick="returnToLanding()" style="width:100%;background:none;border:2px solid var(--esp);border-radius:13px;padding:14px;font-weight:600;font-size:14.5px;color:var(--esp);cursor:pointer;transition:all .2s;font-family:'Jost',sans-serif" onmouseover="this.style.background='var(--esp)';this.style.color='var(--cream)'" onmouseout="this.style.background='none';this.style.color='var(--esp)'">Submit Another Venue</button>
-      <div style="font-size:10.5px;color:rgba(15,12,8,.28);font-family:monospace;margin-top:14px">${SUB_ID}</div>
-    </div>`;
+    </header>
+  );
 }
 
-/* ════════════════════════════════════════════════
-   VENDOR STEPS HTML
-   ════════════════════════════════════════════════ */
-function renderVendorStep(s){
-  if(s===0) return renderVendorWelcome();
-  if(s===1) return renderVendorBusiness();
-  if(s===2) return renderVendorEvents();
-  if(s===3) return renderVendorBooth();
-  if(s===4) return renderVendorTerms();
-  if(s===5) return renderVendorPayment();
-  if(s===6) return renderVendorConfirm();
-  return '';
+// ─────────────────────────────────────────────
+// LANDING PAGE
+// ─────────────────────────────────────────────
+function Landing({ onSelect }) {
+  return (
+    <div className="landing" style={{minHeight:'100vh'}}>
+      <div className="landing-bg" style={{backgroundImage:"url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1600')"}} />
+      <div className="landing-overlay" />
+      <div className="landing-content fade-up">
+        <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:14,marginBottom:36}}>
+          <img src={CONFIG.logoUrl} alt="FA" style={{width:52,height:52,borderRadius:'50%',border:'2px solid var(--gold)',objectFit:'cover'}} />
+        </div>
+        <div className="landing-eyebrow">Foreign Affairs · Partner Portal</div>
+        <h1 className="landing-title">
+          Join the<br/>Movement
+        </h1>
+        <p className="landing-sub">
+          A curated vendor event series transforming spaces<br/>into thriving cultural destinations.
+        </p>
+        <div className="mode-cards" style={{margin:'0 auto'}}>
+          <div className="mode-card" onClick={() => onSelect('venue')}>
+            <div className="mode-card-icon">🏛</div>
+            <div className="mode-card-title">Venue Partner</div>
+            <div className="mode-card-desc">List your space and host our professional vendor markets. Free to apply.</div>
+          </div>
+          <div className="mode-card" onClick={() => onSelect('vendor')}>
+            <div className="mode-card-icon">🛍</div>
+            <div className="mode-card-title">Vendor</div>
+            <div className="mode-card-desc">Register your business and sell at our curated events across the country.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-function renderVendorWelcome(){
-  const bens=[
-    {t:'High-Traffic Events',d:'Access 100+ engaged attendees per event.'},
-    {t:'3 Flexible Plans',d:'$199, $299, or $449 — choose the right fit for your business.'},
-    {t:'Marketing Support',d:'We promote your business across all our digital channels.'},
-    {t:'Flexible Options',d:'Choose specific events or register for future opportunities.'},
-    {t:'Professional Setup',d:'Standard booth included, power access available.'},
-    {t:'Vendor Community',d:'Network with other makers and entrepreneurs.'},
+// ─────────────────────────────────────────────
+// NAV BUTTONS
+// ─────────────────────────────────────────────
+function NavRow({ onBack, onNext, nextLabel='Continue →', nextGold=false, disabled=false }) {
+  return (
+    <div className="nav-row">
+      <button className="btn-ghost" onClick={onBack}>← Back</button>
+      <div className="spacer" />
+      <button
+        className={`${nextGold?'btn-gold':'btn-primary'} ${disabled?'btn-disabled':''}`}
+        onClick={onNext}
+        disabled={disabled}
+      >
+        {nextLabel}
+      </button>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════
+// VENUE ONBOARDING FLOW
+// ═══════════════════════════════════════════
+const VENUE_STEPS = ['Welcome','Venue Basics','Space Specs','Legal Docs','Availability','Contact','Review','Confirmation'];
+
+const venueInit = {
+  venueName:'', address:'', city:'', state:'', zip:'', venueType:'', venueTypeOther:'',
+  squareFootage:'', capacity:'', indoorOutdoor:'', parkingSpaces:'',
+  powerAccess:false, loadingDock:false,
+  hasStage:false, hasDanceFloor:false, hasDJBooth:false, hasEntertainment:false, hasSoundSystem:false, hasLighting:false,
+  documents:{ certificateOfInsurance:false, occupancyPermit:false, fireMarshalPermit:false, adaCompliance:false, liquorLicense:false, businessLicense:false, sellersPermit:false, noisePermit:false, foodServiceLicense:false, floorPlan:false },
+  availableDates:[], preferredEventTimes:[], preferredEventType:'',
+  businessSocialMedia:'', personalSocialMedia:'',
+  firstName:'', lastName:'', email:'', phone:'', jobPosition:'', isDecisionMaker:false, businessName:'',
+  notes:'',
+};
+
+function VenueFlow({ onBack }) {
+  const [step, setStep]     = React.useState(0);
+  const [d, setD]           = React.useState(venueInit);
+  const [showPay, setShowPay] = React.useState(false);
+  const [subId]             = React.useState(() => genId('FA-VENUE'));
+
+  const progress = (step / (VENUE_STEPS.length-1)) * 100;
+  const upd = (k,v) => setD(p => ({...p,[k]:v}));
+  const updDoc = k => setD(p => ({...p,documents:{...p.documents,[k]:!p.documents[k]}}));
+
+  const next = () => {
+    if(step < VENUE_STEPS.length-1) { window.scrollTo(0,0); setStep(s=>s+1); fireConfetti(window.innerWidth/2, 60); }
+  };
+  const back = () => {
+    if(step===0) onBack(); else { window.scrollTo(0,0); setStep(s=>s-1); }
+  };
+
+  const handleSubmit = async () => {
+    const payload = { type:'venue', submissionId:subId, submittedAt:new Date().toISOString(), paymentStatus:'pending', ...d, documentsChecked: Object.entries(d.documents).filter(([,v])=>v).map(([k])=>k).join(', ') };
+    await sendToWorker(payload);
+    setShowPay(true);
+  };
+
+  const amenities = [
+    {k:'hasStage',label:'Stage'},{k:'hasDanceFloor',label:'Dance Floor'},{k:'hasDJBooth',label:'DJ Booth'},
+    {k:'hasEntertainment',label:'Entertainment License'},{k:'hasSoundSystem',label:'Sound System'},{k:'hasLighting',label:'Lighting System'},
   ];
-  return `
-    <div style="text-align:center;margin-bottom:28px">
-      <div class="s-eye" style="margin-bottom:8px">Vendor Registration</div>
-      <div class="s-title" style="font-size:clamp(28px,4vw,40px)">Become a Vendor</div>
-      <p style="font-size:14px;color:rgba(15,12,8,.45);max-width:420px;margin:8px auto 0;line-height:1.7">Join our curated marketplace events and connect with engaged customers across the country.</p>
-    </div>
-    <div class="ben-grid">
-      ${bens.map((b,i)=>`<div class="ben-card"><div class="ben-num">0${i+1}</div><div class="ben-t">${b.t}</div><div class="ben-d">${b.d}</div></div>`).join('')}
-    </div>
-    <div style="display:flex;gap:10px;justify-content:center">
-      <button class="btn-ghost" onclick="returnToLanding()">← Back</button>
-      <button class="btn-primary" onclick="goNext()" style="padding:14px 40px">Register Now →</button>
-    </div>`;
-}
 
-function renderVendorBusiness(){
-  return `
-    <div class="s-eye">Step 01</div>
-    <div class="s-title">Business Information</div>
-    <div class="s-sub">Tell us about your business</div>
-    <div class="field"><label class="lbl">Business Name</label><input class="inp" id="businessName" value="${esc(VD.businessName)}" placeholder="Your Business Name"/></div>
-    <div class="field">
-      <label class="lbl">Product Category</label>
-      <select class="inp" id="category" onchange="renderCategoryOther()">
-        <option value="">Select category…</option>
-        ${CATEGORIES.map(c=>`<option value="${c}"${VD.category===c?' selected':''}>${c}</option>`).join('')}
-      </select>
-    </div>
-    <div class="field" id="categoryOtherWrap" style="${VD.category==='Other'?'':'display:none'}">
-      <label class="lbl">Please specify</label>
-      <input class="inp" id="categoryOther" value="${esc(VD.categoryOther)}" placeholder="Describe your category"/>
-    </div>
-    <div class="field"><label class="lbl">Business Description</label><textarea class="inp" id="description" style="height:80px;resize:none" placeholder="Describe what you sell in 2–3 sentences…">${esc(VD.description)}</textarea></div>
-    <div class="g2">
-      <div class="field"><label class="lbl">Website (optional)</label><input class="inp" id="website" type="url" value="${esc(VD.website)}" placeholder="yoursite.com"/></div>
-      <div class="field"><label class="lbl">Instagram (optional)</label><input class="inp" id="instagram" value="${esc(VD.instagram)}" placeholder="@handle"/></div>
-    </div>
-    <div class="field"><label class="lbl">Referral Code (optional)</label><input class="inp" id="referralCode" value="${esc(VD.referralCode)}" placeholder="Enter code if you have one"/></div>
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-primary" onclick="goNext()">Continue →</button>
-    </div>`;
-}
+  return (
+    <>
+      <Header progress={progress} mode="venue" />
+      {showPay && (
+        <PaymentModal mode="venue" vendorPrice={0} submissionId={subId} onClose={()=>setShowPay(false)} />
+      )}
+      <div style={{paddingTop:100,paddingBottom:48,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'100px 16px 48px'}}>
+        <div style={{width:'100%',maxWidth:680}}>
+          <div className="card fade-in">
 
-function renderVendorEvents(){
-  const price=calcVendorPrice();
-  return `
-    <div class="s-eye">Step 02</div>
-    <div class="s-title">Event Selection</div>
-    <div class="s-sub">Choose how you want to participate</div>
-    <div class="mode-pills">
-      <div class="mpill${VD.registrationType==='specific'?' on':''}" onclick="setVendorRegType('specific')">Specific Event</div>
-      <div class="mpill${VD.registrationType==='general'?' on':''}" onclick="setVendorRegType('general')">General Pool</div>
-    </div>
-    <div id="events-inner">
-      ${VD.registrationType==='specific' ? renderSpecificEvents() : renderGeneralPool()}
-    </div>
-    ${price>0?`<div class="price-bar" style="margin-top:16px"><div class="price-total-row"><span class="price-total-label">Estimated Total</span><span class="price-total-val">$${price}</span></div></div>`:''}
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-primary" onclick="goNext()">Continue →</button>
-    </div>`;
-}
+            {/* STEP 0: Welcome */}
+            {step===0 && (
+              <div>
+                <div style={{textAlign:'center',marginBottom:32}}>
+                  <div className="step-label" style={{marginBottom:8}}>Venue Partnership</div>
+                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(32px,5vw,46px)',fontWeight:300,color:'var(--espresso)',lineHeight:1.1,marginBottom:12}}>Partner with Foreign Affairs</div>
+                  <p style={{fontSize:15,color:'rgba(15,12,8,0.5)',maxWidth:460,margin:'0 auto',lineHeight:1.7}}>Transform your space into a vibrant cultural destination with our professional vendor event series.</p>
+                </div>
+                <div className="benefit-grid" style={{marginBottom:32}}>
+                  {[
+                    {t:'High Volume Traffic',d:'100+ engaged attendees per event, creating energy in your space.'},
+                    {t:'Digital Amplification',d:'High-engagement content, viral social moments, increased reputation.'},
+                    {t:'Business Growth',d:'New customers discovering your venue, driving future bookings.'},
+                    {t:'Community Value',d:'Intentional use of space supporting local vendors and culture.'},
+                    {t:'Professional Production',d:'Full-service management — marketing, setup, ops, breakdown.'},
+                    {t:'Free Content Creation',d:'Professional photography & video of your space provided to you.'},
+                  ].map((b,i) => (
+                    <div key={i} className="benefit-card" style={{animationDelay:`${i*0.08}s`}}>
+                      <div className="benefit-num">0{i+1}</div>
+                      <div className="benefit-t">{b.t}</div>
+                      <div className="benefit-d">{b.d}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:'flex',gap:12,justifyContent:'center'}}>
+                  <button className="btn-ghost" onClick={back}>← Back</button>
+                  <button className="btn-primary" onClick={next} style={{padding:'16px 40px'}}>Start Application →</button>
+                </div>
+              </div>
+            )}
 
-function renderSpecificEvents(){
-  return UPCOMING_EVENTS.map(ev=>`
-    <div class="ev-card${VD.selectedEvents.includes(ev.id)?' on':''}" id="ev-${ev.id}" onclick="toggleEvent('${ev.id}')">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div>
-          <div class="ev-name">${ev.name}</div>
-          <div class="ev-meta">${fmtDate(ev.date)} · ${ev.location}</div>
-        </div>
-        <div class="ev-price">$${ev.price}</div>
-      </div>
-    </div>`).join('');
-}
+            {/* STEP 1: Venue Basics */}
+            {step===1 && (
+              <div>
+                <div className="step-label">Step 01</div>
+                <div className="step-title">Venue Basics</div>
+                <div className="step-sub">Tell us about your space</div>
+                <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
+                  <div><label className="inp-label">Venue Name</label><input className="inp" value={d.venueName} onChange={e=>upd('venueName',e.target.value)} placeholder="e.g. The Market Hall" /></div>
+                  <div>
+                    <label className="inp-label">Venue Type</label>
+                    <select className="inp" value={d.venueType} onChange={e=>upd('venueType',e.target.value)}>
+                      <option value="">Select type…</option>
+                      {VENUE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  {d.venueType==='Other' && <div><label className="inp-label">Please specify</label><input className="inp" value={d.venueTypeOther} onChange={e=>upd('venueTypeOther',e.target.value)} placeholder="Describe your venue type" /></div>}
+                  <div className="g2">
+                    <div><label className="inp-label">City</label><input className="inp" value={d.city} onChange={e=>upd('city',e.target.value)} placeholder="New York" /></div>
+                    <div><label className="inp-label">State</label><input className="inp" value={d.state} onChange={e=>upd('state',e.target.value)} placeholder="NY" /></div>
+                  </div>
+                  <div><label className="inp-label">Street Address</label><input className="inp" value={d.address} onChange={e=>upd('address',e.target.value)} placeholder="123 Main Street" /></div>
+                  <div><label className="inp-label">ZIP Code</label><input className="inp" value={d.zip} onChange={e=>upd('zip',e.target.value)} placeholder="10001" /></div>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
 
-function renderGeneralPool(){
-  return `
-    <div style="margin-bottom:12px">
-      <label class="lbl">What types of events interest you?</label>
-      <div class="chip-grid">
-        ${UPCOMING_EVENTS.map(ev=>`<button class="chip${VD.generalPreferences.includes(ev.name)?' on':''}" id="gp-${ev.id}" onclick="toggleGP('${ev.name}')">${ev.name}</button>`).join('')}
-      </div>
-    </div>
-    <div class="info-banner"><strong>Early Bird Advantage:</strong> Registering before venues are finalised helps us plan better — and locks you in at the lowest $199 rate.</div>`;
-}
+            {/* STEP 2: Space Specs */}
+            {step===2 && (
+              <div>
+                <div className="step-label">Step 02</div>
+                <div className="step-title">Space Specifications</div>
+                <div className="step-sub">Help us match the right event to your space</div>
+                <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
+                  <div className="g2">
+                    <div><label className="inp-label">Square Footage</label><input className="inp" type="number" value={d.squareFootage} onChange={e=>upd('squareFootage',e.target.value)} placeholder="5000" /></div>
+                    <div><label className="inp-label">Max Capacity</label><input className="inp" type="number" value={d.capacity} onChange={e=>upd('capacity',e.target.value)} placeholder="200" /></div>
+                  </div>
+                  <div>
+                    <label className="inp-label">Space Type</label>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                      {['Indoor Only','Outdoor Only','Indoor/Outdoor','Rooftop'].map(t=>(
+                        <button key={t} className={`chip ${d.indoorOutdoor===t?'active':''}`} onClick={()=>upd('indoorOutdoor',t)}>{t}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div><label className="inp-label">Parking Spaces Available</label><input className="inp" type="number" value={d.parkingSpaces} onChange={e=>upd('parkingSpaces',e.target.value)} placeholder="50" /></div>
+                  <label className="check-row" onClick={()=>upd('powerAccess',!d.powerAccess)}>
+                    <div className={`check-box ${d.powerAccess?'checked':''}`}>{d.powerAccess&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:500}}>220V Power Access</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>Suitable for food vendors and lighting</div></div>
+                  </label>
+                  <label className="check-row" onClick={()=>upd('loadingDock',!d.loadingDock)}>
+                    <div className={`check-box ${d.loadingDock?'checked':''}`}>{d.loadingDock&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:500}}>Loading Dock / Access</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>Easy load-in for vendor setups</div></div>
+                  </label>
+                  <div>
+                    <label className="inp-label" style={{marginBottom:12}}>Venue Amenities</label>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                      {amenities.map(a=>(
+                        <label key={a.k} className="check-row" style={{padding:'12px 14px'}} onClick={()=>upd(a.k,!d[a.k])}>
+                          <div className={`check-box ${d[a.k]?'checked':''}`} style={{width:18,height:18}}>{d[a.k]&&<span style={{color:'var(--espresso)',fontSize:11,fontWeight:700}}>✓</span>}</div>
+                          <span style={{fontSize:13.5,fontWeight:500}}>{a.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
 
-function renderVendorBooth(){
-  return `
-    <div class="s-eye">Step 03</div>
-    <div class="s-title">Booth Requirements</div>
-    <div class="s-sub">Tell us what you need for your setup</div>
-    <div class="field">
-      <label class="lbl" style="margin-bottom:10px">Booth Size</label>
-      ${BOOTH_SIZES.map(b=>`
-        <div class="booth-card${VD.boothSize===b.value?' on':''}" id="booth-${b.value}" onclick="setBoothSize('${b.value}')">
-          <div><div class="booth-name">${b.label}</div><div class="booth-sub">${b.sub}</div></div>
-          <div class="booth-price">${b.price>0?'+$'+b.price:'Included'}</div>
-        </div>`).join('')}
-    </div>
-    <div onclick="toggleVDBool('needsTable')" class="chk-row">
-      <div class="chk-box${VD.needsTable?' on':''}" id="chk-needsTable">${VD.needsTable?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
-      <div><div class="chk-title">I need a table</div><div class="chk-sub">Standard 6ft table (while supplies last)</div></div>
-    </div>
-    <div onclick="toggleVDBool('needsPower')" class="chk-row">
-      <div class="chk-box${VD.needsPower?' on':''}" id="chk-needsPower">${VD.needsPower?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
-      <div><div class="chk-title">I need power access</div><div class="chk-sub">110V outlet for lighting, payment processing, etc.</div></div>
-    </div>
-    <div class="field" style="margin-top:10px"><label class="lbl">Special Requirements (optional)</label><textarea class="inp" id="specialRequirements" style="height:76px;resize:none" placeholder="Near entrance, away from food vendors, etc.">${esc(VD.specialRequirements)}</textarea></div>
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-primary" onclick="goNext()">Continue →</button>
-    </div>`;
-}
+            {/* STEP 3: Legal Docs */}
+            {step===3 && (
+              <div>
+                <div className="step-label">Step 03</div>
+                <div className="step-title">Legal & Compliance</div>
+                <div className="step-sub">Required documentation for event hosting</div>
+                <div style={{marginTop:24}} className="scroll-inner">
+                  {DOCS.map(doc=>{
+                    const sel = d.documents[doc.key];
+                    return (
+                      <div key={doc.key} className={`doc-item ${sel?'selected':''}`} onClick={()=>updDoc(doc.key)}>
+                        <div className="doc-item-check">{sel&&<span style={{color:'var(--espresso)',fontSize:11,fontWeight:700}}>✓</span>}</div>
+                        <div style={{flex:1}}>
+                          <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                            <span className="doc-item-title">{doc.label}</span>
+                            {doc.required && <span className={`badge ${sel?'badge-req-sel':'badge-req'}`}>Required</span>}
+                          </div>
+                          <div className="doc-item-desc">{doc.desc}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="info-banner" style={{marginTop:16}}>
+                  <strong>Document Upload:</strong> You'll receive an email link to upload scanned copies after initial review. Physical verification during site visit.
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
 
-function renderVendorTerms(){
-  return `
-    <div class="s-eye">Step 04</div>
-    <div class="s-title">Terms & Conditions</div>
-    <div class="s-sub">Please review before proceeding</div>
-    <div class="terms-box">
-      <h4>Vendor Agreement</h4>
-      <p>By registering as a vendor with Foreign Affairs, you agree to the following:</p>
-      <p><strong>1. Payment:</strong> All fees must be paid in full before event confirmation. Plans are $199 (Starter), $299 (Growth), or $449 (Premium).</p>
-      <p><strong>2. Cancellation:</strong> Cancellations 14+ days before event receive 50% refund. No refunds within 14 days; credit applied to future events.</p>
-      <p><strong>3. Setup:</strong> Vendors must arrive 1 hour before event start. Late arrivals may forfeit prime positioning.</p>
-      <p><strong>4. Insurance:</strong> Proof of business insurance and necessary permits required after payment via secure email link.</p>
-      <p><strong>5. Conduct:</strong> Professional conduct required. We reserve the right to remove vendors violating community standards with no refund.</p>
-      <p><strong>6. Marketing:</strong> By participating, you grant Foreign Affairs rights to photograph your booth and products for promotional use.</p>
-      <p><strong>7. Force Majeure:</strong> Event cancellations due to circumstances beyond our control result in credits for a future event.</p>
-    </div>
-    <div onclick="toggleVDBool('agreeToTerms')" class="chk-row" style="background:rgba(201,169,97,.08);border-color:rgba(201,169,97,.2)">
-      <div class="chk-box${VD.agreeToTerms?' on':''}" id="chk-agreeToTerms">${VD.agreeToTerms?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
-      <div><div class="chk-title">I agree to the terms and conditions</div><div class="chk-sub">I understand document upload will be required after payment.</div></div>
-    </div>
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-primary${VD.agreeToTerms?'':' btn-disabled'}" id="terms-next-btn" onclick="${VD.agreeToTerms?'goNext()':'void(0)'}">Continue to Payment →</button>
-    </div>`;
-}
+            {/* STEP 4: Availability */}
+            {step===4 && (
+              <div>
+                <div className="step-label">Step 04</div>
+                <div className="step-title">Availability & Presence</div>
+                <div className="step-sub">Scheduling and social presence</div>
+                <div style={{marginTop:24,display:'flex',flexDirection:'column',gap:20}}>
+                  <div style={{background:'rgba(15,12,8,0.05)',borderRadius:16,padding:20,border:'1.5px solid rgba(15,12,8,0.08)'}}>
+                    <label className="inp-label">Preferred Event Dates</label>
+                    <input type="date" className="inp" onChange={e=>{if(e.target.value){upd('availableDates',toggle(d.availableDates,e.target.value));e.target.value='';}}} />
+                    {d.availableDates.length>0 && (
+                      <div className="date-tags">
+                        {d.availableDates.map((dt,i)=>(
+                          <span key={i} className="date-tag">{fmt(dt)}<button onClick={()=>upd('availableDates',d.availableDates.filter((_,j)=>j!==i))}>×</button></span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="inp-label">Preferred Event Times</label>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                      {EVENT_TIMES.map(t=>(
+                        <button key={t} className={`chip ${d.preferredEventTimes.includes(t)?'active':''}`} onClick={()=>upd('preferredEventTimes',toggle(d.preferredEventTimes,t))} style={{display:'flex',alignItems:'center',gap:8}}>
+                          <span style={{width:14,height:14,borderRadius:4,border:`1.5px solid ${d.preferredEventTimes.includes(t)?'var(--gold)':'rgba(15,12,8,0.25)'}`,background:d.preferredEventTimes.includes(t)?'var(--gold)':'white',display:'inline-flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                            {d.preferredEventTimes.includes(t)&&<span style={{fontSize:9,color:'var(--espresso)',fontWeight:700}}>✓</span>}
+                          </span>
+                          <span style={{fontSize:13}}>{t}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div><label className="inp-label">Preferred Event Types</label><textarea className="inp" style={{height:90,resize:'none'}} value={d.preferredEventType} onChange={e=>upd('preferredEventType',e.target.value)} placeholder="e.g. art markets, food festivals, networking events" /></div>
+                  <div className="g2">
+                    <div><label className="inp-label">Business Social Media</label><input className="inp" value={d.businessSocialMedia} onChange={e=>upd('businessSocialMedia',e.target.value)} placeholder="@venuehandle" /></div>
+                    <div><label className="inp-label">Personal Social Media</label><input className="inp" value={d.personalSocialMedia} onChange={e=>upd('personalSocialMedia',e.target.value)} placeholder="@yourhandle" /></div>
+                  </div>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
 
-function renderVendorPayment(){
-  const price=calcVendorPrice();
-  const eventNames=VD.registrationType==='specific'
-    ? VD.selectedEvents.map(id=>UPCOMING_EVENTS.find(e=>e.id===id)?.name).filter(Boolean).join(', ')||'Specific Event'
-    : 'General Pool';
-  const boothLabel=BOOTH_SIZES.find(b=>b.value===VD.boothSize)?.label||'Standard';
-  return `
-    <div class="s-eye">Step 05</div>
-    <div class="s-title">Contact & Payment</div>
-    <div class="s-sub">Your information for registration records</div>
-    <div class="price-bar">
-      <div class="price-row"><span>Registration</span><span>${eventNames}</span></div>
-      <div class="price-row"><span>Booth</span><span>${boothLabel}</span></div>
-      <div class="price-total-row">
-        <span class="price-total-label">Total Due</span>
-        <span class="price-total-val">$${price}</span>
-      </div>
-    </div>
-    <div class="g2">
-      <div class="field"><label class="lbl">First Name</label><input class="inp" id="firstName" value="${esc(VD.firstName)}" placeholder="Jane"/></div>
-      <div class="field"><label class="lbl">Last Name</label><input class="inp" id="lastName" value="${esc(VD.lastName)}" placeholder="Doe"/></div>
-    </div>
-    <div class="field"><label class="lbl">Email</label><input class="inp" id="email" type="email" value="${esc(VD.email)}" placeholder="vendor@example.com"/></div>
-    <div class="field"><label class="lbl">Phone</label><input class="inp" id="phone" type="tel" value="${esc(VD.phone)}" placeholder="(555) 123-4567"/></div>
-    <div class="nav-row">
-      <button class="btn-ghost" onclick="goBack()">← Back</button>
-      <div class="nav-spacer"></div>
-      <button class="btn-gold" id="pay-submit-btn" onclick="handleVendorSubmit()">Proceed to Pay $${price} →</button>
-    </div>`;
-}
+            {/* STEP 5: Contact */}
+            {step===5 && (
+              <div>
+                <div className="step-label">Step 05</div>
+                <div className="step-title">Contact Information</div>
+                <div className="step-sub">Primary contact for venue partnership</div>
+                <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
+                  <div className="g2">
+                    <div><label className="inp-label">First Name</label><input className="inp" value={d.firstName} onChange={e=>upd('firstName',e.target.value)} placeholder="Jane" /></div>
+                    <div><label className="inp-label">Last Name</label><input className="inp" value={d.lastName} onChange={e=>upd('lastName',e.target.value)} placeholder="Smith" /></div>
+                  </div>
+                  <div><label className="inp-label">Job Position</label><input className="inp" value={d.jobPosition} onChange={e=>upd('jobPosition',e.target.value)} placeholder="General Manager, Owner, Events Coordinator" /></div>
+                  <div><label className="inp-label">Email Address</label><input className="inp" type="email" value={d.email} onChange={e=>upd('email',e.target.value)} placeholder="jane@venue.com" /></div>
+                  <div><label className="inp-label">Phone Number</label><input className="inp" type="tel" value={d.phone} onChange={e=>upd('phone',e.target.value)} placeholder="(555) 123-4567" /></div>
+                  <div><label className="inp-label">Business Legal Name</label><input className="inp" value={d.businessName} onChange={e=>upd('businessName',e.target.value)} placeholder="Smith Venue Properties LLC" /></div>
+                  <label className="check-row" onClick={()=>upd('isDecisionMaker',!d.isDecisionMaker)}>
+                    <div className={`check-box ${d.isDecisionMaker?'checked':''}`}>{d.isDecisionMaker&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:500}}>Primary Decision Maker</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>I have authority to approve events at this venue</div></div>
+                  </label>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
 
-function renderVendorConfirm(){
-  return `
-    <div style="text-align:center;padding:16px 0">
-      <div class="confirm-circle">✓</div>
-      <div class="s-title" style="text-align:center;margin-bottom:10px">Registration Submitted</div>
-      <p style="color:rgba(15,12,8,.45);font-size:14.5px;max-width:360px;margin:0 auto 28px;line-height:1.7">Welcome to the Foreign Affairs vendor community. Complete your payment to confirm your spot.</p>
-      <div style="background:rgba(201,169,97,.1);border-radius:16px;padding:22px;border:1.5px solid rgba(201,169,97,.2);text-align:left;margin-bottom:22px">
-        <div style="display:flex;gap:13px;margin-bottom:14px">
-          <span style="font-size:24px">📧</span>
-          <div>
-            <div style="font-weight:600;margin-bottom:3px;font-size:14.5px">Check Your Email</div>
-            <div style="font-size:12.5px;color:rgba(15,12,8,.5);line-height:1.6">You'll receive a payment receipt and a secure link to upload required documents (business license, insurance, permits).</div>
+            {/* STEP 6: Review */}
+            {step===6 && (
+              <div>
+                <div className="step-label">Step 06</div>
+                <div className="step-title">Review Application</div>
+                <div className="step-sub">Confirm your details before submitting</div>
+                <div style={{marginTop:24,display:'flex',flexDirection:'column',gap:12}} className="scroll-inner">
+                  {[
+                    {title:'Venue Details', rows:[['Name',d.venueName],['Type',d.venueType==='Other'?d.venueTypeOther:d.venueType],['Address',`${d.address}, ${d.city}, ${d.state} ${d.zip}`]]},
+                    {title:'Specifications', rows:[['Sq Ft',d.squareFootage],['Capacity',d.capacity],['Space',d.indoorOutdoor],['Parking',d.parkingSpaces],['Amenities',[d.hasStage&&'Stage',d.hasDanceFloor&&'Dance Floor',d.hasDJBooth&&'DJ Booth',d.hasSoundSystem&&'Sound',d.hasLighting&&'Lighting',d.hasEntertainment&&'Entertainment License'].filter(Boolean).join(', ')||'None']]},
+                    {title:'Legal Documents', rows:[['Confirmed',Object.entries(d.documents).filter(([,v])=>v).map(([k])=>k.replace(/([A-Z])/g,' $1').trim()).join(', ')||'None selected']]},
+                    {title:'Availability', rows:[['Dates',d.availableDates.map(fmt).join(', ')||'None'],['Times',d.preferredEventTimes.join(', ')||'None'],['Event Types',d.preferredEventType||'—']]},
+                    {title:'Social Media', rows:[['Business',d.businessSocialMedia||'—'],['Personal',d.personalSocialMedia||'—']]},
+                    {title:'Contact', rows:[['Name',`${d.firstName} ${d.lastName}`],['Position',d.jobPosition],['Email',d.email],['Phone',d.phone],['Decision Maker',d.isDecisionMaker?'Yes':'No']]},
+                  ].map(sec=>(
+                    <div key={sec.title} className="review-section">
+                      <div className="review-title">{sec.title}</div>
+                      {sec.rows.map(([k,v])=>v&&<div key={k} className="review-row"><span className="review-key">{k}</span><span className="review-val">{v}</span></div>)}
+                    </div>
+                  ))}
+                </div>
+                <div style={{marginTop:20}}>
+                  <label className="inp-label">Additional Notes (optional)</label>
+                  <textarea className="inp" style={{height:80,resize:'none'}} value={d.notes} onChange={e=>upd('notes',e.target.value)} placeholder="Any special requirements or questions…" />
+                </div>
+                <NavRow onBack={back} onNext={handleSubmit} nextLabel="Submit & Choose Plan →" nextGold={true} />
+              </div>
+            )}
+
+            {/* STEP 7: Confirmation */}
+            {step===7 && (
+              <div style={{textAlign:'center',padding:'20px 0'}}>
+                <div className="confirm-circle">✓</div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:34,fontWeight:300,color:'var(--espresso)',marginBottom:10}}>Application Submitted</div>
+                <p style={{color:'rgba(15,12,8,0.5)',fontSize:15,maxWidth:380,margin:'0 auto 28px',lineHeight:1.7}}>Your venue is under manual review. You'll hear back within 24–48 hours after completing your plan selection.</p>
+                <div style={{background:'rgba(15,12,8,0.05)',borderRadius:18,padding:24,border:'1.5px solid rgba(15,12,8,0.08)',textAlign:'left',marginBottom:24}}>
+                  <div style={{fontWeight:600,fontSize:15,marginBottom:4}}>📞 Next Step: Schedule Your Call</div>
+                  <div style={{fontSize:13,color:'rgba(15,12,8,0.5)',marginBottom:14}}>15-minute venue assessment with our team</div>
+                  <a href="https://calendly.com/foreignaffairs-venue/intro" target="_blank" rel="noopener noreferrer" style={{display:'block',textAlign:'center',background:'var(--espresso)',color:'var(--cream)',padding:'14px',borderRadius:12,fontWeight:600,textDecoration:'none',fontSize:15}}>Schedule Phone Call →</a>
+                </div>
+                <button onClick={()=>{setD(venueInit);setStep(0);}} style={{width:'100%',background:'none',border:'2px solid var(--espresso)',borderRadius:14,padding:'14px',fontWeight:600,fontSize:15,color:'var(--espresso)',cursor:'pointer',marginBottom:12,transition:'all 0.2s'}} onMouseOver={e=>{e.target.style.background='var(--espresso)';e.target.style.color='var(--cream)'}} onMouseOut={e=>{e.target.style.background='none';e.target.style.color='var(--espresso)'}}>
+                  Submit Another Venue
+                </button>
+                <div style={{fontSize:11,color:'rgba(15,12,8,0.3)',fontFamily:'monospace',marginTop:8}}>{subId}</div>
+              </div>
+            )}
+
           </div>
         </div>
-        <div style="background:var(--esp);color:var(--cream);border-radius:11px;padding:15px 17px;font-size:13px">
-          <div style="font-weight:600;margin-bottom:7px">Next Steps:</div>
-          <div style="color:rgba(244,228,193,.7);line-height:1.85">
-            · Upload required documents via secure email link<br>
-            · Receive event assignment / confirmation details<br>
-            · Access vendor portal for event day logistics
-          </div>
-        </div>
       </div>
-      <button onclick="returnToLanding()" style="width:100%;background:none;border:2px solid var(--esp);border-radius:13px;padding:14px;font-weight:600;font-size:14.5px;color:var(--esp);cursor:pointer;transition:all .2s;font-family:'Jost',sans-serif" onmouseover="this.style.background='var(--esp)';this.style.color='var(--cream)'" onmouseout="this.style.background='none';this.style.color='var(--esp)'">Register Another Vendor</button>
-      <div style="font-size:10.5px;color:rgba(15,12,8,.28);font-family:monospace;margin-top:14px">${SUB_ID}</div>
-    </div>`;
+    </>
+  );
 }
 
-/* ════════════════════════════════════════════════
-   REVIEW HELPER
-   ════════════════════════════════════════════════ */
-function revSection(title, rows){
-  const rrows=rows.filter(([,v])=>v&&v!=='—'&&v!==''&&v!==', ').map(([k,v])=>`<div class="rev-row"><span class="rev-k">${k}</span><span class="rev-v">${esc(v)}</span></div>`).join('');
-  if(!rrows) return '';
-  return `<div class="rev-section"><div class="rev-title">${title}</div>${rrows}</div>`;
-}
+// ═══════════════════════════════════════════
+// VENDOR REGISTRATION FLOW
+// ═══════════════════════════════════════════
+const VENDOR_STEPS = ['Welcome','Business Info','Event Selection','Booth Setup','Terms','Payment','Confirmation'];
 
-/* ════════════════════════════════════════════════
-   INLINE TOGGLE HANDLERS (called from HTML onclick)
-   ════════════════════════════════════════════════ */
-function setIndoorOutdoor(val){
-  V.indoorOutdoor=val;
-  document.querySelectorAll('[id^="io-"]').forEach(b=>b.classList.remove('on'));
-  const key='io-'+val.replace(/\//g,'-').replace(/ /g,'-');
-  const btn=el(key); if(btn) btn.classList.add('on');
-}
+const vendorInit = {
+  businessName:'', category:'', categoryOther:'', description:'', website:'', instagram:'', referralCode:'',
+  registrationType:'specific', selectedEvents:[], generalPreferences:[],
+  boothSize:'standard', needsPower:false, needsTable:true, specialRequirements:'',
+  firstName:'', lastName:'', email:'', phone:'', agreeToTerms:false, saveCard:true,
+};
 
-function toggleVBool(key){
-  V[key]=!V[key];
-  const box=el('chk-'+key);
-  if(box){
-    box.classList.toggle('on',V[key]);
-    box.innerHTML=V[key]?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
-  }
-  const amenBtn=el('amen-'+key);
-  if(amenBtn) amenBtn.classList.toggle('on',V[key]);
-}
+function VendorFlow({ onBack }) {
+  const [step, setStep]       = React.useState(0);
+  const [d, setD]             = React.useState(vendorInit);
+  const [showPay, setShowPay] = React.useState(false);
+  const [subId]               = React.useState(() => genId('FA-VENDOR'));
 
-function toggleVDoc(key){
-  V.docs[key]=!V.docs[key];
-  const item=el('doc-'+key); if(!item) return;
-  item.classList.toggle('on',V.docs[key]);
-  const chk=item.querySelector('.doc-chk');
-  if(chk) chk.innerHTML=V.docs[key]?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
-}
-
-function toggleVTime(t){
-  const idx=V.preferredEventTimes.indexOf(t);
-  if(idx>-1) V.preferredEventTimes.splice(idx,1);
-  else V.preferredEventTimes.push(t);
-  const key='evt-'+t.replace(/[^a-z]/gi,'_');
-  const btn=el(key); if(btn) btn.classList.toggle('on',V.preferredEventTimes.includes(t));
-}
-
-function toggleVDBool(key){
-  VD[key]=!VD[key];
-  const box=el('chk-'+key);
-  if(box){
-    box.classList.toggle('on',VD[key]);
-    box.innerHTML=VD[key]?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
-  }
-  // Re-enable/disable terms next button
-  if(key==='agreeToTerms'){
-    const nb=el('terms-next-btn');
-    if(nb){ nb.classList.toggle('btn-disabled',!VD[key]); nb.onclick=VD[key]?goNext:null; }
-  }
-}
-
-function setVendorRegType(t){
-  VD.registrationType=t;
-  VD.selectedEvents=[];
-  VD.generalPreferences=[];
-  document.querySelectorAll('.mpill').forEach((p,i)=>p.classList.toggle('on',['specific','general'][i]===t));
-  const inner=el('events-inner');
-  if(inner) inner.innerHTML=t==='specific'?renderSpecificEvents():renderGeneralPool();
-  updatePriceBar();
-}
-
-function toggleEvent(id){
-  const idx=VD.selectedEvents.indexOf(id);
-  if(idx>-1) VD.selectedEvents.splice(idx,1);
-  else VD.selectedEvents.push(id);
-  const card=el('ev-'+id); if(card) card.classList.toggle('on',VD.selectedEvents.includes(id));
-  updatePriceBar();
-}
-
-function toggleGP(name){
-  const idx=VD.generalPreferences.indexOf(name);
-  if(idx>-1) VD.generalPreferences.splice(idx,1);
-  else VD.generalPreferences.push(name);
-  // find button by content — use id
-  const ev=UPCOMING_EVENTS.find(e=>e.name===name);
-  if(ev){ const btn=el('gp-'+ev.id); if(btn) btn.classList.toggle('on',VD.generalPreferences.includes(name)); }
-}
-
-function setBoothSize(val){
-  VD.boothSize=val;
-  BOOTH_SIZES.forEach(b=>{
-    const card=el('booth-'+b.value); if(card) card.classList.toggle('on',b.value===val);
-  });
-  updatePriceBar();
-}
-
-function updatePriceBar(){
-  // Refresh price display on step 2 without full re-render
-  const price=calcVendorPrice();
-  const card=el('step-card');
-  if(!card) return;
-  let pb=card.querySelector('.price-bar');
-  if(!pb){
-    // Insert after events-inner
-    const wrap=el('events-inner');
-    if(wrap&&price>0){
-      const div=document.createElement('div');
-      div.className='price-bar'; div.style.marginTop='16px';
-      div.innerHTML=`<div class="price-total-row"><span class="price-total-label">Estimated Total</span><span class="price-total-val">$${price}</span></div>`;
-      wrap.insertAdjacentElement('afterend',div);
+  const calcPrice = () => {
+    let base = 299; // Standard vendor rate
+    if(d.registrationType==='general') {
+      base = 199; // Early bird, general pool
+    } else if(d.registrationType==='specific' && d.selectedEvents.length >= 2) {
+      base = 449; // Multi-event or premium rate
     }
-  } else {
-    pb.innerHTML=`<div class="price-total-row"><span class="price-total-label">Estimated Total</span><span class="price-total-val">$${price}</span></div>`;
-  }
-}
-
-function renderVenueTypeOther(){
-  const sel=val('venueType'); V.venueType=sel;
-  const wrap=el('venueTypeOtherWrap');
-  if(wrap) wrap.style.display=sel==='Other'?'':'none';
-}
-
-function renderCategoryOther(){
-  const sel=val('category'); VD.category=sel;
-  const wrap=el('categoryOtherWrap');
-  if(wrap) wrap.style.display=sel==='Other'?'':'none';
-}
-
-/* ════════════════════════════════════════════════
-   BIND STEP EVENTS (after innerHTML set)
-   ════════════════════════════════════════════════ */
-function bindStepEvents(){
-  // Date input — add on Enter key
-  const di=el('dateInput');
-  if(di) di.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); addVenueDate(); } });
-  bindDateTagEvents();
-}
-
-function bindDateTagEvents(){
-  // nothing extra needed — onclick is inline
-}
-
-/* ════════════════════════════════════════════════
-   SUBMIT HANDLERS
-   ════════════════════════════════════════════════ */
-async function sendToWorker(payload){
-  try{
-    await fetch(`${CFG.workerUrl}/submit`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload),
-    });
-  }catch(e){console.warn('Worker unreachable:',e);}
-}
-
-async function handleVenueSubmit(){
-  saveStepData();
-  const payload={
-    type:'venue',submissionId:SUB_ID,submittedAt:new Date().toISOString(),paymentStatus:'pending',
-    ...V,
-    availableDates:V.availableDates.join(', '),
-    preferredEventTimes:V.preferredEventTimes.join(', '),
-    docsConfirmed:Object.entries(V.docs).filter(([,v])=>v).map(([k])=>k).join(', '),
+    return base + (BOOTH_SIZES.find(b=>b.value===d.boothSize)?.price||0);
   };
-  sendToWorker(payload); // fire & forget
-  openPayModal('venue');
-}
+  const price = calcPrice();
 
-async function handleVendorSubmit(){
-  saveStepData();
-  if(!VD.firstName||!VD.lastName||!VD.email){
-    alert('Please fill in First Name, Last Name, and Email before proceeding.');
-    return;
-  }
-  const price=calcVendorPrice();
-  const eventNames=VD.selectedEvents.map(id=>UPCOMING_EVENTS.find(e=>e.id===id)?.name).filter(Boolean).join(', ');
-  const payload={
-    type:'vendor',submissionId:SUB_ID,submittedAt:new Date().toISOString(),paymentStatus:'pending',planAmount:price,
-    ...VD,
-    selectedEvents:VD.selectedEvents.join(', '),
-    selectedEventNames:eventNames,
-    generalPreferences:VD.generalPreferences.join(', '),
-    boothSizeLabel:BOOTH_SIZES.find(b=>b.value===VD.boothSize)?.label||'Standard',
+  const progress = (step / (VENDOR_STEPS.length-1)) * 100;
+  const upd = (k,v) => setD(p=>({...p,[k]:v}));
+  const next = () => { if(step<VENDOR_STEPS.length-1){window.scrollTo(0,0);setStep(s=>s+1);fireConfetti(window.innerWidth/2,60);} };
+  const back = () => { if(step===0) onBack(); else {window.scrollTo(0,0);setStep(s=>s-1);} };
+
+  const handleSubmit = async () => {
+    const selectedEventNames = d.selectedEvents.map(id=>UPCOMING_EVENTS.find(e=>e.id===id)?.name).filter(Boolean).join(', ');
+    const payload = {
+      type:'vendor', submissionId:subId, submittedAt:new Date().toISOString(),
+      paymentStatus:'pending', amountPaid:price, planAmount:price,
+      ...d, selectedEventNames,
+      boothSizeLabel: BOOTH_SIZES.find(b=>b.value===d.boothSize)?.label||'Standard',
+    };
+    await sendToWorker(payload);
+    setShowPay(true);
   };
-  sendToWorker(payload); // fire & forget
-  openPayModal('vendor');
-}
 
-/* ════════════════════════════════════════════════
-   PAYMENT MODAL
-   ════════════════════════════════════════════════ */
-function openPayModal(mode){
-  const overlay=el('pay-modal-overlay');
-  const plansDiv=el('pay-plans');
-  const eyeDiv=el('pay-eye');
-  eyeDiv.textContent=mode==='venue'?'Venue Partnership':'Vendor Registration';
-  const redirect=encodeURIComponent(`${CFG.baseUrl}/thank-you.html?id=${SUB_ID}&mode=${mode}`);
-  const plans=WHOP_PLANS.map(p=>`
-    <a href="${CFG.whop[p.key]}?redirect=${redirect}&submission_id=${SUB_ID}&plan=${encodeURIComponent(p.label)}" target="_blank" rel="noopener noreferrer" class="whop-btn">
-      <div class="whop-btn-left">
-        <div class="whop-btn-label">${p.label}</div>
-        <div class="whop-btn-sub">${p.sub}</div>
+  return (
+    <>
+      <Header progress={progress} mode="vendor" />
+      {showPay && (
+        <PaymentModal mode="vendor" vendorPrice={price} submissionId={subId} onClose={()=>setShowPay(false)} />
+      )}
+      <div style={{paddingTop:100,paddingBottom:48,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'100px 16px 48px'}}>
+        <div style={{width:'100%',maxWidth:680}}>
+          <div className="card fade-in">
+
+            {/* STEP 0: Welcome */}
+            {step===0 && (
+              <div>
+                <div style={{textAlign:'center',marginBottom:32}}>
+                  <div className="step-label" style={{marginBottom:8}}>Vendor Registration</div>
+                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(30px,5vw,44px)',fontWeight:300,color:'var(--espresso)',lineHeight:1.1,marginBottom:12}}>Become a Vendor</div>
+                  <p style={{fontSize:15,color:'rgba(15,12,8,0.5)',maxWidth:440,margin:'0 auto',lineHeight:1.7}}>Join our curated marketplace events and connect with engaged customers across the country.</p>
+                </div>
+                <div className="benefit-grid" style={{marginBottom:32}}>
+                  {[
+                    {t:'High-Traffic Events',d:'Access 100+ engaged attendees per event.'},
+                    {t:'Early Bird: $199',d:'Register early for the best rate — General pool.'},
+                    {t:'Standard: $299',d:'Register for specific events with confirmed dates.'},
+                    {t:'Premium: $449',d:'Register for multiple events and maximum exposure.'},
+                    {t:'Professional Setup',d:'Standard booth included, power access available.'},
+                    {t:'Vendor Community',d:'Network with other makers and entrepreneurs.'},
+                  ].map((b,i)=>(
+                    <div key={i} className="benefit-card">
+                      <div className="benefit-num">0{i+1}</div>
+                      <div className="benefit-t">{b.t}</div>
+                      <div className="benefit-d">{b.d}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:'flex',gap:12,justifyContent:'center'}}>
+                  <button className="btn-ghost" onClick={back}>← Back</button>
+                  <button className="btn-primary" onClick={next} style={{padding:'16px 40px'}}>Register Now →</button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 1: Business Info */}
+            {step===1 && (
+              <div>
+                <div className="step-label">Step 01</div>
+                <div className="step-title">Business Information</div>
+                <div className="step-sub">Tell us about your business</div>
+                <div style={{marginTop:28,display:'flex',flexDirection:'column',gap:16}}>
+                  <div><label className="inp-label">Business Name</label><input className="inp" value={d.businessName} onChange={e=>upd('businessName',e.target.value)} placeholder="Your Business Name" /></div>
+                  <div>
+                    <label className="inp-label">Product Category</label>
+                    <select className="inp" value={d.category} onChange={e=>upd('category',e.target.value)}>
+                      <option value="">Select category…</option>
+                      {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  {d.category==='Other' && <div><label className="inp-label">Please specify</label><input className="inp" value={d.categoryOther} onChange={e=>upd('categoryOther',e.target.value)} placeholder="Describe your category" /></div>}
+                  <div><label className="inp-label">Business Description</label><textarea className="inp" style={{height:90,resize:'none'}} value={d.description} onChange={e=>upd('description',e.target.value)} placeholder="Describe what you sell in 2–3 sentences…" /></div>
+                  <div className="g2">
+                    <div><label className="inp-label">Website (optional)</label><input className="inp" type="url" value={d.website} onChange={e=>upd('website',e.target.value)} placeholder="yoursite.com" /></div>
+                    <div><label className="inp-label">Instagram (optional)</label><input className="inp" value={d.instagram} onChange={e=>upd('instagram',e.target.value)} placeholder="@handle" /></div>
+                  </div>
+                  <div><label className="inp-label">Referral Code (optional)</label><input className="inp" value={d.referralCode} onChange={e=>upd('referralCode',e.target.value)} placeholder="Enter code if you have one" /></div>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 2: Event Selection */}
+            {step===2 && (
+              <div>
+                <div className="step-label">Step 02</div>
+                <div className="step-title">Event Selection</div>
+                <div className="step-sub">Choose how you want to participate</div>
+                <div style={{marginTop:20}}>
+                  <div className="mode-pills" style={{marginBottom:20}}>
+                    <div className={`mode-pill ${d.registrationType==='specific'?'active':''}`} onClick={()=>upd('registrationType','specific')}>Specific Event</div>
+                    <div className={`mode-pill ${d.registrationType==='general'?'active':''}`} onClick={()=>upd('registrationType','general')}>General Pool</div>
+                  </div>
+                  {d.registrationType==='specific' ? (
+                    <div className="scroll-inner">
+                      {UPCOMING_EVENTS.map(ev=>{
+                        const sel = d.selectedEvents.includes(ev.id);
+                        return (
+                          <div key={ev.id} className={`event-card ${sel?'selected':''}`} onClick={()=>upd('selectedEvents',toggle(d.selectedEvents,ev.id))}>
+                            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                              <div>
+                                <div style={{fontWeight:600,fontSize:15,marginBottom:4}}>{ev.name}</div>
+                                <div style={{fontSize:13,opacity:0.6}}>{new Date(ev.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})} · {ev.location}</div>
+                              </div>
+                              <div style={{fontFamily:"'Cinzel',serif",fontWeight:600,fontSize:16,color:sel?'var(--gold-light)':'var(--gold)',flexShrink:0,marginLeft:12}}>${ev.price}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="inp-label" style={{marginBottom:12}}>What types of events interest you?</label>
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+                        {UPCOMING_EVENTS.map(ev=>(
+                          <button key={ev.id} className={`chip ${d.generalPreferences.includes(ev.name)?'active':''}`} onClick={()=>upd('generalPreferences',toggle(d.generalPreferences,ev.name))}>{ev.name}</button>
+                        ))}
+                      </div>
+                      <div className="info-banner">
+                        <strong>Early Bird Advantage:</strong> Registering in the General Pool at $199 — register for specific events at $299, or multiple events at $449.
+                      </div>
+                    </div>
+                  )}
+                  {price > 0 && (
+                    <div style={{marginTop:16,background:'var(--espresso)',borderRadius:14,padding:'14px 18px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <span style={{fontSize:13,color:'rgba(244,228,193,0.6)'}}>Estimated Total</span>
+                      <span style={{fontFamily:"'Cinzel',serif",fontSize:20,fontWeight:600,color:'var(--gold)'}}>${price}</span>
+                    </div>
+                  )}
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 3: Booth Setup */}
+            {step===3 && (
+              <div>
+                <div className="step-label">Step 03</div>
+                <div className="step-title">Booth Requirements</div>
+                <div className="step-sub">Tell us what you need for your setup</div>
+                <div style={{marginTop:24,display:'flex',flexDirection:'column',gap:16}}>
+                  <div>
+                    <label className="inp-label" style={{marginBottom:12}}>Booth Size</label>
+                    {BOOTH_SIZES.map(b=>(
+                      <div key={b.value} className={`event-card ${d.boothSize===b.value?'selected':''}`} style={{marginBottom:10}} onClick={()=>upd('boothSize',b.value)}>
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                          <div style={{fontWeight:600,fontSize:14}}>{b.label}</div>
+                          <div style={{fontFamily:"'Cinzel',serif",fontWeight:600,fontSize:14,color:d.boothSize===b.value?'var(--gold-light)':'var(--gold)'}}>{b.sub}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <label className="check-row" onClick={()=>upd('needsTable',!d.needsTable)}>
+                    <div className={`check-box ${d.needsTable?'checked':''}`}>{d.needsTable&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:500}}>I need a table</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>Standard 6ft table (while supplies last)</div></div>
+                  </label>
+                  <label className="check-row" onClick={()=>upd('needsPower',!d.needsPower)}>
+                    <div className={`check-box ${d.needsPower?'checked':''}`}>{d.needsPower&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:500}}>I need power access</div><div style={{fontSize:13,color:'rgba(15,12,8,0.45)',marginTop:2}}>110V outlet for lighting, payment processing, etc.</div></div>
+                  </label>
+                  <div><label className="inp-label">Special Requirements (optional)</label><textarea className="inp" style={{height:80,resize:'none'}} value={d.specialRequirements} onChange={e=>upd('specialRequirements',e.target.value)} placeholder="Near entrance, away from food vendors, etc." /></div>
+                </div>
+                <NavRow onBack={back} onNext={next} />
+              </div>
+            )}
+
+            {/* STEP 4: Terms */}
+            {step===4 && (
+              <div>
+                <div className="step-label">Step 04</div>
+                <div className="step-title">Terms & Conditions</div>
+                <div className="step-sub">Please review before proceeding</div>
+                <div style={{marginTop:20}}>
+                  <div className="terms-box">
+                    <h4>Vendor Agreement</h4>
+                    <p>By registering as a vendor with Foreign Affairs, you agree to the following terms:</p>
+                    <p><strong>1. Payment:</strong> All fees must be paid in full before event confirmation. Early bird pricing ($200) is available for general registration or early events. Standard pricing ($500) applies to confirmed venue events.</p>
+                    <p><strong>2. Cancellation:</strong> Cancellations made 14+ days before event receive 50% refund. No refunds within 14 days; credit can be applied to future events.</p>
+                    <p><strong>3. Setup:</strong> Vendors must arrive 1 hour before event start time. Late arrivals may forfeit prime positioning.</p>
+                    <p><strong>4. Insurance:</strong> You will be required to upload proof of business insurance and any necessary permits (health dept., etc.) after payment.</p>
+                    <p><strong>5. Conduct:</strong> Professional conduct required. We reserve the right to remove vendors violating community standards with no refund.</p>
+                    <p><strong>6. Marketing:</strong> By participating, you grant Foreign Affairs rights to photograph your booth and products for promotional use across all platforms.</p>
+                    <p><strong>7. Force Majeure:</strong> In the event of cancellation due to circumstances beyond our control, credits will be issued for a future event.</p>
+                  </div>
+                  <label className="check-row" style={{marginTop:16,background:'rgba(201,169,97,0.08)',borderColor:'rgba(201,169,97,0.2)'}} onClick={()=>upd('agreeToTerms',!d.agreeToTerms)}>
+                    <div className={`check-box ${d.agreeToTerms?'checked':''}`}>{d.agreeToTerms&&<span style={{color:'var(--espresso)',fontSize:12,fontWeight:700}}>✓</span>}</div>
+                    <div><div style={{fontWeight:600}}>I agree to the terms and conditions</div><div style={{fontSize:13,color:'rgba(15,12,8,0.5)',marginTop:2}}>I understand document upload will be required after payment.</div></div>
+                  </label>
+                </div>
+                <NavRow onBack={back} onNext={next} nextLabel="Continue to Payment →" disabled={!d.agreeToTerms} />
+              </div>
+            )}
+
+            {/* STEP 5: Contact + Payment */}
+            {step===5 && (
+              <div>
+                <div className="step-label">Step 05</div>
+                <div className="step-title">Contact & Payment</div>
+                <div className="step-sub">Your information for registration records</div>
+
+                <div style={{background:'var(--espresso)',borderRadius:18,padding:'20px 22px',marginTop:20,marginBottom:24}}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:13,color:'rgba(244,228,193,0.55)',marginBottom:8}}>
+                    <span>Registration</span><span>{d.registrationType==='specific'?d.selectedEvents.map(id=>UPCOMING_EVENTS.find(e=>e.id===id)?.name).join(', ')||'Specific Event':'General Pool'}</span>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:13,color:'rgba(244,228,193,0.55)',marginBottom:12}}>
+                    <span>Booth</span><span>{BOOTH_SIZES.find(b=>b.value===d.boothSize)?.label||'Standard'}</span>
+                  </div>
+                  <div style={{borderTop:'1px solid rgba(244,228,193,0.12)',paddingTop:12,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                    <span style={{fontWeight:600,fontSize:16,color:'var(--cream)'}}>Total Due</span>
+                    <span style={{fontFamily:"'Cinzel',serif",fontSize:26,fontWeight:600,color:'var(--gold)'}}>${price}</span>
+                  </div>
+                </div>
+
+                <div style={{display:'flex',flexDirection:'column',gap:14}}>
+                  <div className="g2">
+                    <div><label className="inp-label">First Name</label><input className="inp" value={d.firstName} onChange={e=>upd('firstName',e.target.value)} placeholder="Jane" /></div>
+                    <div><label className="inp-label">Last Name</label><input className="inp" value={d.lastName} onChange={e=>upd('lastName',e.target.value)} placeholder="Doe" /></div>
+                  </div>
+                  <div><label className="inp-label">Email</label><input className="inp" type="email" value={d.email} onChange={e=>upd('email',e.target.value)} placeholder="vendor@example.com" /></div>
+                  <div><label className="inp-label">Phone</label><input className="inp" type="tel" value={d.phone} onChange={e=>upd('phone',e.target.value)} placeholder="(555) 123-4567" /></div>
+                </div>
+
+                <NavRow onBack={back} onNext={handleSubmit} nextLabel={`Proceed to Pay $${price} →`} nextGold={true} disabled={!d.firstName||!d.lastName||!d.email} />
+              </div>
+            )}
+
+            {/* STEP 6: Confirmation */}
+            {step===6 && (
+              <div style={{textAlign:'center',padding:'20px 0'}}>
+                <div className="confirm-circle">✓</div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:34,fontWeight:300,color:'var(--espresso)',marginBottom:10}}>Registration Submitted</div>
+                <p style={{color:'rgba(15,12,8,0.5)',fontSize:15,maxWidth:360,margin:'0 auto 28px',lineHeight:1.7}}>Welcome to the Foreign Affairs vendor community. Complete your payment to confirm your spot.</p>
+                <div style={{background:'rgba(201,169,97,0.1)',borderRadius:18,padding:24,border:'1.5px solid rgba(201,169,97,0.2)',textAlign:'left',marginBottom:24}}>
+                  <div style={{display:'flex',gap:14,marginBottom:16}}>
+                    <span style={{fontSize:26}}>📧</span>
+                    <div>
+                      <div style={{fontWeight:600,marginBottom:4}}>Check Your Email</div>
+                      <div style={{fontSize:13,color:'rgba(15,12,8,0.55)',lineHeight:1.6}}>You'll receive a payment receipt and a secure link to upload required documents (business license, insurance, permits).</div>
+                    </div>
+                  </div>
+                  <div style={{background:'var(--espresso)',color:'var(--cream)',borderRadius:12,padding:'16px 18px',fontSize:13}}>
+                    <div style={{fontWeight:600,marginBottom:8}}>Next Steps:</div>
+                    <div style={{color:'rgba(244,228,193,0.7)',lineHeight:1.8}}>
+                      · Upload required documents via secure email link<br/>
+                      · Receive event assignment / confirmation details<br/>
+                      · Access vendor portal for event day logistics
+                    </div>
+                  </div>
+                </div>
+                <button onClick={()=>{setD(vendorInit);setStep(0);}} style={{width:'100%',background:'none',border:'2px solid var(--espresso)',borderRadius:14,padding:'14px',fontWeight:600,fontSize:15,color:'var(--espresso)',cursor:'pointer',marginBottom:12,transition:'all 0.2s'}} onMouseOver={e=>{e.target.style.background='var(--espresso)';e.target.style.color='var(--cream)'}} onMouseOut={e=>{e.target.style.background='none';e.target.style.color='var(--espresso)'}}>
+                  Register Another Vendor
+                </button>
+                <div style={{fontSize:11,color:'rgba(15,12,8,0.3)',fontFamily:'monospace',marginTop:8}}>{subId}</div>
+              </div>
+            )}
+
+          </div>
+        </div>
       </div>
-      <div class="whop-price">${p.price}</div>
-    </a>`).join('');
-  plansDiv.innerHTML=plans;
-  overlay.classList.add('open');
-  // After payment modal opens, advance to confirm step (data saved)
-  // The user will return via thank-you.html redirect
-  overlay._pendingMode=mode;
+    </>
+  );
 }
 
-function closePayModal(){
-  el('pay-modal-overlay').classList.remove('open');
-  // Advance to confirmation step now (form is submitted)
-  STEP=TOTAL_STEPS-1;
-  updateProgress();
-  renderStep();
-  window.scrollTo(0,0);
-  fireConfetti(window.innerWidth/2, window.innerHeight/3);
+// ─────────────────────────────────────────────
+// ROOT APP
+// ─────────────────────────────────────────────
+function App() {
+  const [mode, setMode] = React.useState(null); // null | 'venue' | 'vendor'
+
+  if(!mode) return <Landing onSelect={setMode} />;
+  if(mode==='venue')  return <VenueFlow  onBack={()=>setMode(null)} />;
+  if(mode==='vendor') return <VendorFlow onBack={()=>setMode(null)} />;
 }
 
-el('pay-close-btn').addEventListener('click',closePayModal);
-el('pay-modal-overlay').addEventListener('click',function(e){
-  if(e.target===this) closePayModal();
-});
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
 </body>
 </html>
